@@ -183,7 +183,7 @@ client.on('ready', (x) => {
         const newCours = `📚〡${nextEvent ? nextEvent.matiere : "Aucun cours"}`
         const newProf = `💼〡${nextEvent ? nextEvent.prof : "Aucun prof"}`;
         const newSalle = `🚪〡${nextEvent ? nextEvent.salle : "Aucune salle"}`;
-        const newPause = `🍽️〡${scheduleInfo.timeUntilPause}`;
+        const newPause = `🍴〡${scheduleInfo.timeUntilPause}`;
         
         voiceChannelDate.setName(newDate).catch(console.error);
         voiceChannelCours.setName(newCours).catch(console.error);
