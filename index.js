@@ -43,7 +43,7 @@ function getWeekType() {
 function getScheduleInfo(schedule) {
     const now = new Date();
     const currentHour = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
-    const day = now.toLocaleDateString('fr-FR', { weekday: 'long' }).toLowerCase();
+    const day = now.toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris', weekday: 'long' }).toLowerCase();
     const date = now.toLocaleDateString('fr-FR');
 
     const weekType = getWeekType();
