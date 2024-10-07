@@ -1,0 +1,177 @@
+{
+    "semaines": {
+      "A": {
+        "lundi": {
+          "cours": [
+            {
+              "id": "matin",
+              "cours": "Supp & MAD de servi info",
+              "debut": "8:30",
+              "fin": "11:00",
+              "prof": "M. VERT",
+              "salle": "RDC - SÉOUL"
+            },
+            {
+              "id": "avant_midi",
+              "cours": "Atelier professionnel",
+              "debut": "11:00",
+              "fin": "13:00",
+              "prof": "M. VERT",
+              "salle": "RDC - SÉOUL"
+            },
+            {
+              "id": "pause_midi",
+              "cours": "Pause midi",
+              "debut": "13:00",
+              "fin": "14:00"
+            },
+            {
+              "id": "apres_midi",
+              "cours": "Valorisation de la cybersécurité",
+              "debut": "14:00",
+              "fin": "16:00",
+              "prof": "Mme. EL KHADAR",
+              "salle": "RDC - SÉOUL"
+            },
+            {
+              "id": "soir",
+              "cours": "Atelier professionnel",
+              "debut": "16:00",
+              "fin": "18:00",
+              "prof": "Mme. EL KHADAR",
+              "salle": "RDC - SÉOUL"
+            }
+          ]
+        },
+        "mardi": {
+          "cours": [
+            {
+              "id": "matin",
+              "cours": "CEJM",
+              "debut": "8:30",
+              "fin": "11:00",
+              "prof": "Mme. DIDION",
+              "salle": "1er ETAGE - BALI"
+            },
+            {
+              "id": "avant_midi",
+              "cours": "Anglais",
+              "debut": "11:00",
+              "fin": "13:00",
+              "prof": "Mme. MILLER",
+              "salle": "1er ETAGE - BALI"
+            },
+            {
+              "id": "pause_midi",
+              "cours": "Pause midi",
+              "debut": "13:00",
+              "fin": "14:00"
+            },
+            {
+              "id": "apres_midi",
+              "cours": "CGE",
+              "debut": "14:00",
+              "fin": "16:00",
+              "prof": "Mme. BOURDEAU",
+              "salle": "1er ETAGE - BALI"
+            },
+            {
+              "id": "soir",
+              "cours": "Mathématiques",
+              "debut": "16:00",
+              "fin": "18:00",
+              "prof": "M. BACONNET",
+              "salle": "1er ETAGE - BALI"
+            }
+          ]
+        }
+      },
+      "B": {
+        "lundi": {
+          "cours": [
+            {
+              "id": "matin",
+              "cours": "Supp & MAD de servi info",
+              "debut": "8:30",
+              "fin": "11:00",
+              "prof": "M. VERT",
+              "salle": "RDC - SÉOUL"
+            },
+            {
+              "id": "avant_midi",
+              "cours": "Atelier professionnel",
+              "debut": "11:00",
+              "fin": "13:00",
+              "prof": "M. VERT",
+              "salle": "RDC - SÉOUL"
+            },
+            {
+              "id": "pause_midi",
+              "cours": "Pause midi",
+              "debut": "13:00",
+              "fin": "14:00"
+            },
+            {
+              "id": "apres_midi",
+              "cours": "Valorisation de la cybersécurité",
+              "debut": "14:00",
+              "fin": "16:00",
+              "prof": "Mme. EL KHADAR",
+              "salle": "RDC - SÉOUL"
+            },
+            {
+              "id": "soir",
+              "cours": "Atelier professionnel",
+              "debut": "16:00",
+              "fin": "18:00",
+              "prof": "Mme. EL KHADAR",
+              "salle": "RDC - SÉOUL"
+            }
+          ]
+        },
+        "mardi": {
+          "cours": [
+            {
+              "id": "matin",
+              "cours": "CEJM",
+              "debut": "8:30",
+              "fin": "11:00",
+              "prof": "Mme. DIDION",
+              "salle": "1er ETAGE - BALI"
+            },
+            {
+              "id": "avant_midi",
+              "cours": "Anglais",
+              "debut": "11:00",
+              "fin": "13:00",
+              "prof": "Mme. MILLER",
+              "salle": "1er ETAGE - BALI"
+            },
+            {
+              "id": "pause_midi",
+              "cours": "Pause midi",
+              "debut": "13:00",
+              "fin": "14:00"
+            },
+            {
+              "id": "apres_midi",
+              "cours": "CGE",
+              "debut": "14:00",
+              "fin": "16:00",
+              "prof": "Mme. BOURDEAU",
+              "salle": "1er ETAGE - BALI"
+            },
+            {
+              "id": "soir",
+              "cours": "Mathématiques",
+              "debut": "16:00",
+              "fin": "18:00",
+              "prof": "M. BACONNET",
+              "salle": "1er ETAGE - BALI"
+            }
+          ]
+        }
+      }
+    }
+  }
+  
