@@ -7,8 +7,10 @@ const client = new Client({
 
 // Express
 const fs = require('fs');
-const path = require('path');
+
 const express = require('express');
+
+const path = require('path');
 const app = express();
 const port = process.env.PORT || 4000;
 const schedulePath = path.join(__dirname, 'horaires.json');
@@ -87,7 +89,7 @@ function getScheduleInfo(schedule) {
 
     if (timeUntilPause === "Pause midi") {
         const [pauseEndHours, pauseEndMinutes] = dayCourses.find(cours => cours.id === "pause_midi").fin.split(':').map(Number);
-        const pauseEndDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), pauseEndHours, pauseEndMinutes);
+        const pauseEndDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), pauseEndHours - 2, pauseEndMinutes);
 
         if (now > pauseEndDate) {
             if (endOfDayTime) {
