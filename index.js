@@ -44,9 +44,11 @@ function getWeekType() {
 
 function getScheduleInfo(schedule) {
     const now = new Date();
-    const currentHour = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
-    const day = now.toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris', weekday: 'long' }).toLowerCase();
-    const date = now.toLocaleDateString('fr-FR');
+    const nowUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes()));
+
+    const currentHour = `${nowUTC.getUTCHours()}:${nowUTC.getUTCMinutes().toString().padStart(2, '0')}`;
+    const day = nowUTC.toLocaleDateString('fr-FR', { timeZone: 'UTC', weekday: 'long' }).toLowerCase();
+    const date = nowUTC.toLocaleDateString('fr-FR');
 
     const weekType = getWeekType();
     const dayCourses = schedule['semaines'][weekType][day]?.cours || [];
@@ -63,8 +65,8 @@ function getScheduleInfo(schedule) {
 
         if (cours.cours.toLowerCase().includes('pause midi')) {
             const [hours, minutes] = cours.debut.split(':').map(Number);
-            const pauseDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
-            const timeDiffPause = pauseDate - now;
+            const pauseDate = new Date(Date.UTC(nowUTC.getUTCFullYear(), nowUTC.getUTCMonth(), nowUTC.getUTCDate(), hours - 2, minutes));
+            const timeDiffPause = pauseDate - nowUTC;
             const minutesUntilPause = Math.floor((timeDiffPause / 1000) / 60);
             
             if (minutesUntilPause > 0) {
@@ -78,8 +80,8 @@ function getScheduleInfo(schedule) {
             if (!nextEvent) {
                 nextEvent = cours;
                 const [hours, minutes] = cours.debut.split(':').map(Number);
-                const eventDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes);
-                const timeDiffNextEvent = eventDate - now;
+                const eventDate = new Date(Date.UTC(nowUTC.getUTCFullYear(), nowUTC.getUTCMonth(), nowUTC.getUTCDate(), hours, minutes));
+                const timeDiffNextEvent = eventDate - nowUTC; // Compare avec nowUTC
                 const minutesUntilNextEvent = Math.floor((timeDiffNextEvent / 1000) / 60);
 
                 timeUntilNextEvent = formatTime(minutesUntilNextEvent) + ' avant ' + cours.cours;
@@ -89,15 +91,15 @@ function getScheduleInfo(schedule) {
 
     if (timeUntilPause === "Pause midi") {
         const [pauseEndHours, pauseEndMinutes] = dayCourses.find(cours => cours.id === "pause_midi").fin.split(':').map(Number);
-        const pauseEndDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), pauseEndHours - 2, pauseEndMinutes);
+        const pauseEndDate = new Date(Date.UTC(nowUTC.getUTCFullYear(), nowUTC.getUTCMonth(), nowUTC.getUTCDate(), pauseEndHours - 2, pauseEndMinutes));
 
-        if (now > pauseEndDate) {
+        if (nowUTC > pauseEndDate) {
             if (endOfDayTime) {
                 const [endHours, endMinutes] = endOfDayTime.split(':').map(Number);
-                const endOfDayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endHours, endMinutes);
+                const endOfDayDate = new Date(Date.UTC(nowUTC.getUTCFullYear(), nowUTC.getUTCMonth(), nowUTC.getUTCDate(), endHours, endMinutes));
                 
-                if (now < endOfDayDate) {
-                    const timeDiffEndOfDay = endOfDayDate - now;
+                if (nowUTC < endOfDayDate) {
+                    const timeDiffEndOfDay = endOfDayDate - nowUTC;
                     const minutesUntilEndOfDay = Math.floor((timeDiffEndOfDay / 1000) / 60);
                     timeUntilPause = formatTime(minutesUntilEndOfDay) + ' avant la fin';
                 } else {
