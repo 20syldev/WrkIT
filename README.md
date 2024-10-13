@@ -2,7 +2,7 @@
   <a href="https://sylvain.pro"><img src="https://github.com/20syldev/WrkIT/blob/main/src/wrkit.png" alt="Logo" width="25%" height="auto"></a>
 
   # WrkIT - Bot Discord
-  [![Version](https://custom-icon-badges.demolab.com/badge/Bot%20:-v1.0.0-6479ee?logo=wrkit&labelColor=23272A)](https://github.com/20syldev/wrkit/releases/latest)
+  [![Version](https://custom-icon-badges.demolab.com/badge/Bot%20:-v1.0.1-6479ee?logo=wrkit&labelColor=23272A)](https://github.com/20syldev/wrkit/releases/latest)
   [![Developpement](https://img.shields.io/badge/Développement%20:-En%20cours-ed5353?labelColor=23272A)](https://sylvain.pro)
 </div>
 
