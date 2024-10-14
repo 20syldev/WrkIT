@@ -96,7 +96,7 @@ function getScheduleInfo(schedule) {
         const pauseMidiCourse = dayCourses.find(cours => cours.id === "pause_midi");
         if (pauseMidiCourse) {
             const [pauseEndHours, pauseEndMinutes] = pauseMidiCourse.fin.split(':').map(Number);
-            const pauseEndDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), pauseEndHours, pauseEndMinutes);
+            const pauseEndDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), pauseEndHours - 2, pauseEndMinutes);
 
             if (now > pauseEndDate) {
                 if (endOfDayTime) {
