@@ -45,10 +45,11 @@ function getWeekType() {
 function getScheduleInfo(schedule) {
     const now = new Date();
     const options = { timeZone: 'Europe/Paris', hour12: false };
-    const formattedDate = now.toLocaleString('fr-FR', options);
+
+    const formattedDate = now.toLocaleDateString('fr-FR', options);
+    const formattedTime = now.toLocaleTimeString('fr-FR', options);
     
-    const [date, time] = formattedDate.split(', ');
-    const [hours, minutes] = time.split(':').map(Number);
+    const [hours, minutes] = formattedTime.split(':').map(Number);
     const currentHour = `${hours}:${minutes.toString().padStart(2, '0')}`;
     const day = now.toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris', weekday: 'long' }).toLowerCase();
     
@@ -92,27 +93,30 @@ function getScheduleInfo(schedule) {
     }
 
     if (timeUntilPause === "Pause midi") {
-        const [pauseEndHours, pauseEndMinutes] = dayCourses.find(cours => cours.id === "pause_midi").fin.split(':').map(Number);
-        const pauseEndDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), pauseEndHours, pauseEndMinutes);
+        const pauseMidiCourse = dayCourses.find(cours => cours.id === "pause_midi");
+        if (pauseMidiCourse) {
+            const [pauseEndHours, pauseEndMinutes] = pauseMidiCourse.fin.split(':').map(Number);
+            const pauseEndDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), pauseEndHours, pauseEndMinutes);
 
-        if (now > pauseEndDate) {
-            if (endOfDayTime) {
-                const [endHours, endMinutes] = endOfDayTime.split(':').map(Number);
-                const endOfDayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endHours, endMinutes);
-                
-                if (now < endOfDayDate) {
-                    const timeDiffEndOfDay = endOfDayDate - now;
-                    const minutesUntilEndOfDay = Math.floor((timeDiffEndOfDay / 1000) / 60);
-                    timeUntilPause = formatTime(minutesUntilEndOfDay) + ' avant la fin';
-                } else {
-                    timeUntilPause = "Aucune pause pour le moment";
+            if (now > pauseEndDate) {
+                if (endOfDayTime) {
+                    const [endHours, endMinutes] = endOfDayTime.split(':').map(Number);
+                    const endOfDayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endHours, endMinutes);
+                    
+                    if (now < endOfDayDate) {
+                        const timeDiffEndOfDay = endOfDayDate - now;
+                        const minutesUntilEndOfDay = Math.floor((timeDiffEndOfDay / 1000) / 60);
+                        timeUntilPause = formatTime(minutesUntilEndOfDay) + ' avant la fin';
+                    } else {
+                        timeUntilPause = "Aucune pause pour le moment";
+                    }
                 }
             }
         }
     }
     
     return {
-        date,
+        date: formattedDate,
         nextEvent: nextEvent ? {
             matiere: nextEvent.cours,
             prof: nextEvent.prof,
