@@ -68,7 +68,7 @@ function getScheduleInfo(schedule) {
 
         if (cours.cours.toLowerCase().includes('pause midi')) {
             const [pauseHours, pauseMinutes] = cours.debut.split(':').map(Number);
-            const pauseDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), pauseHours, pauseMinutes);
+            const pauseDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), pauseHours - 2, pauseMinutes);
             const timeDiffPause = pauseDate - now;
             const minutesUntilPause = Math.floor((timeDiffPause / 1000) / 60);
             
@@ -83,7 +83,7 @@ function getScheduleInfo(schedule) {
             if (!nextEvent) {
                 nextEvent = cours;
                 const [eventHours, eventMinutes] = cours.debut.split(':').map(Number);
-                const eventDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), eventHours, eventMinutes);
+                const eventDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), eventHours - 2, eventMinutes);
                 const timeDiffNextEvent = eventDate - now;
                 const minutesUntilNextEvent = Math.floor((timeDiffNextEvent / 1000) / 60);
 
@@ -101,7 +101,7 @@ function getScheduleInfo(schedule) {
             if (now > pauseEndDate) {
                 if (endOfDayTime) {
                     const [endHours, endMinutes] = endOfDayTime.split(':').map(Number);
-                    const endOfDayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endHours, endMinutes);
+                    const endOfDayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endHours - 2, endMinutes);
                     
                     if (now < endOfDayDate) {
                         const timeDiffEndOfDay = endOfDayDate - now;
