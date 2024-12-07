@@ -29,9 +29,8 @@ client.on('ready', (x) => {
     const slam = serveur.members.cache.filter(member => member.roles.cache.has('1285512634442977282')).size;
     const sisr = serveur.members.cache.filter(member => member.roles.cache.has('1285512635109998645')).size;
     
-    // Met à jour le statut toutes les minutes
-    setInterval(() => {
-        { 
+    const activities = [
+        {
             name: `${membres} élèves`,
             type: ActivityType.Watching
         },
@@ -59,11 +58,8 @@ client.on('ready', (x) => {
 
     let activityIndex = 0;
     setInterval(() => {
-        if (activityIndex >= activities.length) {
-            activityIndex = 0;
-        }
         client.user.setActivity(activities[activityIndex]);
-        activityIndex++;
+        activityIndex = (activityIndex + 1) % activities.length;
     }, 20000);
 });
 
