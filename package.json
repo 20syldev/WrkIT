@@ -1,23 +1,31 @@
 {
-  "name": "discord",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "20syldev",
-  "license": "ISC",
-  "dependencies": {
-    "discord.js": "^14.14.1",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.0",
-    "expressjs": "^1.0.1",
-    "firebase": "^10.14.0",
-    "nodemon": "^3.1.0"
-  },
-  "devDependencies": {
-    "@types/express": "^5.0.0"
-  }
+    "version": "2.0.0",
+    "name": "wrkit",
+    "description": "Bot Discord utilitaire pour gérer les événements",
+    "main": "app.js",
+    "type": "module",
+    "scripts": {
+        "start": "node app.js",
+        "dev": "nodemon app.js",
+        "build": "npm install && node app.js",
+        "upgrade:minor": "npm upgrade",
+        "upgrade:major": "npx npm-check-updates -u && npm install",
+        "upgrade:build": "npm upgrade && npm install && node app.js"
+    },
+    "dependencies": {
+        "discord.js": "latest",
+        "dotenv": "latest",
+        "express": "latest"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/20syldev/WrkIT.git"
+    },
+    "keywords": [
+        "discord",
+        "bot",
+        "utility"
+    ],
+    "author": "Sylvain L.",
+    "license": "BSD 3-Clause"
 }
