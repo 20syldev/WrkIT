@@ -191,10 +191,10 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 // Statut du bot & calcul des membres
 client.on('ready', (x) => {
     console.log(`✅ ${x.user.tag} en ligne !`);
-    const server = client.guilds.cache.get('1018257684253900842');
+    const server = client.guilds.cache.get(process.env.GUILD_ID);
     const members = server.memberCount;
-    const slam = server.members.cache.filter(member => member.roles.cache.has('1285512634442977282')).size;
-    const sisr = server.members.cache.filter(member => member.roles.cache.has('1285512635109998645')).size;
+    const slam = server.members.cache.filter(member => member.roles.cache.has(process.env.ROLE_SLAM)).size;
+    const sisr = server.members.cache.filter(member => member.roles.cache.has(process.env.ROLE_SISR)).size;
     
     const activities = [
         {
