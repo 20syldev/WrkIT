@@ -14,6 +14,7 @@ Le bot **WrkIT** est un ajout personnel pour notre expérience sur le **serveur 
 ## Les caractéristiques
 - Hébergé **24h/7j**
 - Statut dynamique du bot, qui affiche des informations sur le serveur en temps réel
+- Commande `/class` affichant le planning de la semaine, dans un embed propre et bien organisé.
 - Commande `/event-add` qui permet d'ajouter des événements sur le serveur, avec plusieurs options de personnalisation
 - Commande `/event-edit` qui permet de modifier un événement existant sur le serveur
 - Commande `/event-delete` qui permet de supprimer un événement existant sur le serveur
