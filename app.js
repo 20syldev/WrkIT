@@ -34,6 +34,22 @@ createServer((req, res) => {
 // Configuration des commandes slash
 const commands = [
     {
+        name: 'class',
+        description: 'Afficher le planning de la classe',
+        options: [
+            {
+                type: 3,
+                name: 'speciality',
+                description: 'Spécialité de la classe (SLAM ou SISR)',
+                required: true,
+                choices: [
+                    { name: 'SLAM', value: 'SLAM' },
+                    // { name: 'SISR', value: 'SISR' }
+                ]
+            }
+        ],
+    },
+    {
         name: 'event-add',
         description: 'Ajouter un événement Discord',
         options: [
@@ -228,6 +244,64 @@ client.on('ready', (x) => {
         client.user.setActivity(activities[activityIndex]);
         activityIndex = (activityIndex + 1) % activities.length;
     }, 20000);
+});
+
+// Afficher le planning
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isCommand()) return;
+
+    const { commandName, options } = interaction;
+
+    if (commandName === 'class') {
+        const speciality = options.getString('speciality');
+        let url = process.env.PLANNING_SLAM;
+
+        if (speciality === 'SLAM') url = encodeURIComponent(process.env.PLANNING_SLAM);
+        else if (speciality === 'SISR') url = encodeURIComponent(process.env.PLANNING_SISR);
+
+        try {
+            const response = await fetch('https://api.sylvain.pro/v3/hyperplanning', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `url=${url}&detail=full`
+            });
+            const data = await response.json();
+
+            if (!data?.length) return interaction.reply({ content: 'Aucune données disponibles.', flags: 64 });
+
+            const firstWeek = Object.values(data.reduce((acc, event) => {
+                const week = Math.ceil((new Date(event.start) - new Date(new Date(event.start).getFullYear(), 0, 1)) / 604800000);
+                acc[week] = acc[week] || []; acc[week].push(event);
+                return acc;
+            }, {}))[0];
+
+            const eventsList = firstWeek.map(event => {
+                let details = `**${event.subject}**\n`;
+                if (event.teacher) details += `Professeur : ${event.teacher}\n`;
+                if (event.classes?.filter(c => c.trim()).length) details += `Classes : ${event.classes.join(', ')}\n`;
+
+                const start = new Date(event.start);
+                const end = new Date(event.end);
+                start.setHours(start.getHours() + 1);
+                end.setHours(end.getHours() + 1);
+
+                return `${details}De : <t:${Math.floor(start.getTime() / 1000)}:t> à <t:${Math.floor(end.getTime() / 1000)}:t>\n`;
+            }).join('\n');
+
+            await interaction.reply({
+                embeds: [{
+                    color: 0xa674cc,
+                    title: `Planning de la spécialité ${speciality}`,
+                    description: 'Voici le planning de cette semaine :',
+                    fields: [{ name: 'Événements', value: eventsList }]
+                }],
+                flags: 64
+            });
+        } catch (error) {
+            console.error('Erreur :', error);
+            await interaction.reply({ content: 'Une erreur est survenue lors de la récupération du planning.', flags: 64 });
+        }
+    }
 });
 
 // Ajouter un événement
