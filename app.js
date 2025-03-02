@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import pkg from 'discord.js';
 import { createServer } from 'https';
-const { Client, GatewayIntentBits, GuildScheduledEventEntityType, ActivityType, Partials, REST, Routes } = pkg;
+const { ActivityType, Client, GatewayIntentBits, GuildScheduledEventEntityType, Partials, REST, Routes } = pkg;
 
 // Client Discord
 const client = new Client({
