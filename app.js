@@ -282,8 +282,6 @@ client.on('interactionCreate', async (interaction) => {
 
                 const start = new Date(event.start);
                 const end = new Date(event.end);
-                start.setHours(start.getHours() + 1);
-                end.setHours(end.getHours() + 1);
 
                 return `${details}De : <t:${Math.floor(start.getTime() / 1000)}:t> à <t:${Math.floor(end.getTime() / 1000)}:t>\n`;
             }).join('\n');
