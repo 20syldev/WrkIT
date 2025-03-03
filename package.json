@@ -1,5 +1,5 @@
 {
-    "version": "2.0.1",
+    "version": "2.0.2",
     "name": "wrkit",
     "description": "Bot Discord utilitaire pour gérer les événements",
     "main": "app.js",
