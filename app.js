@@ -269,14 +269,19 @@ client.on('interactionCreate', async (interaction) => {
 
             if (!data?.length) return interaction.reply({ content: 'Aucune données disponibles.', flags: 64 });
 
-            const firstWeek = Object.values(data.reduce((acc, event) => {
-                const week = Math.ceil((new Date(event.start) - new Date(new Date(event.start).getFullYear(), 0, 1)) / 604800000);
-                acc[week] = acc[week] || []; acc[week].push(event);
-                return acc;
-            }, {}))[0];
+            const currentDate = new Date();
+            const startDate = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay() + (currentDate.getDay() === 0 ? -6 : 1)));
+            const endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + 6);
 
-            const eventsList = firstWeek.map(event => {
+            const week = data.filter(event => {
+                const eventDate = new Date(event.start);
+                return eventDate >= startDate && eventDate <= endDate;
+            });
+
+            const eventsList = week.map(event => {
                 let details = `**${event.subject}**\n`;
+                if (event.type) event.type === 'Skillogs' ? details += `Sur : ${event.type}\n` : details += `Salle : ${event.type}\n`;
                 if (event.teacher) details += `Professeur : ${event.teacher}\n`;
                 if (event.classes?.filter(c => c.trim()).length) details += `Classes : ${event.classes.join(', ')}\n`;
 
