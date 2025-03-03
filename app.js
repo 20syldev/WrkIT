@@ -44,7 +44,7 @@ const commands = [
                 required: true,
                 choices: [
                     { name: 'SLAM', value: 'SLAM' },
-                    // { name: 'SISR', value: 'SISR' }
+                    { name: 'SISR', value: 'SISR' }
                 ]
             }
         ],
