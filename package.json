@@ -1,7 +1,7 @@
 {
     "version": "2.0.2",
     "name": "wrkit",
-    "description": "Bot Discord utilitaire pour gérer les événements",
+    "description": "Bot Discord utilitaire pour le serveur du BTS SIO",
     "main": "app.js",
     "type": "module",
     "scripts": {
