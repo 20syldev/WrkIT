@@ -34,12 +34,12 @@ createServer((req, res) => {
 // Configuration des commandes slash
 const commands = [
     {
-        name: 'class',
+        name: 'planning',
         description: 'Afficher le planning de la classe',
         options: [
             {
                 type: 3,
-                name: 'speciality',
+                name: 'spécialité',
                 description: 'Spécialité de la classe (SLAM ou SISR)',
                 required: true,
                 choices: [
@@ -252,9 +252,9 @@ client.on('interactionCreate', async (interaction) => {
 
     const { commandName, options } = interaction;
 
-    if (commandName === 'class') {
-        const speciality = options.getString('speciality');
         let url = process.env.PLANNING_SLAM;
+    if (commandName === 'planning') {
+        const speciality = options.getString('spécialité');
 
         if (speciality === 'SLAM') url = encodeURIComponent(process.env.PLANNING_SLAM);
         else if (speciality === 'SISR') url = encodeURIComponent(process.env.PLANNING_SISR);
