@@ -52,6 +52,16 @@ const commands = [
                     { name: 'SLAM', value: 'SLAM' },
                     { name: 'SISR', value: 'SISR' }
                 ]
+            },
+            {
+                type: 3,
+                name: 'visualiser',
+                description: 'Visualiser le planning différemment',
+                required: false,
+                choices: [
+                    { name: 'Dynamiquement', value: 'dynamique' },
+                    { name: 'Statiquement', value: 'statique' }
+                ]
             }
         ],
     },
@@ -258,6 +268,7 @@ client.on('interactionCreate', async (interaction) => {
 
     if (commandName === 'planning') {
         const speciality = options.getString('spécialité');
+        const visualiser = options.getString('visualiser');
         let url;
 
         if (speciality === 'SLAM') url = encodeURIComponent(process.env.PLANNING_SLAM);
@@ -279,31 +290,55 @@ client.on('interactionCreate', async (interaction) => {
             endDate.setDate(startDate.getDate() + 6);
 
             const week = data.filter(event => {
-                const eventDate = new Date(event.start);
-                return eventDate >= startDate && eventDate <= endDate;
+                const date = new Date(event.start);
+                return date >= startDate && date <= endDate;
             });
 
-            const eventsList = week.map(event => {
-                let details = `**${event.subject}**\n`;
-                if (event.type) event.type === 'Skillogs' ? details += `Sur : ${event.type}\n` : details += `Salle : ${event.type}\n`;
-                if (event.teacher) details += `Professeur : ${event.teacher}\n`;
-                if (event.classes?.filter(c => c.trim()).length) details += `Classes : ${event.classes.join(', ')}\n`;
+            if (visualiser === 'dynamique') {
+                const next = week.find(event => new Date(event.start) > currentDate);
+                if (!next) return interaction.reply({ content: 'Aucun événement à venir cette semaine.', flags: 64 });
 
-                const start = new Date(event.start);
-                const end = new Date(event.end);
+                const start = new Date(next.start);
+                const end = new Date(next.end);
 
-                return `${details}De : <t:${Math.floor(start.getTime() / 1000)}:t> à <t:${Math.floor(end.getTime() / 1000)}:t>\n`;
-            }).join('\n');
+                const details = `**${next.subject}**\n` +
+                    (next.type ? (next.type === 'Skillogs' ? `Sur : ${next.type}\n` : `Salle : ${next.type}\n`) : '') +
+                    (next.teacher ? `Professeur : ${next.teacher}\n` : '') +
+                    (next.classes?.filter(c => c.trim()).length ? `Classes : ${next.classes.join(', ')}\n` : '') +
+                    `De : <t:${Math.floor(start.getTime() / 1000)}:t> à <t:${Math.floor(end.getTime() / 1000)}:t>\n` +
+                    `Commence <t:${Math.floor(start.getTime() / 1000)}:R>`;
 
-            await interaction.reply({
-                embeds: [{
-                    color: 0xa674cc,
-                    title: `Planning de la spécialité ${speciality}`,
-                    description: 'Voici le planning de cette semaine :',
-                    fields: [{ name: 'Événements', value: eventsList }]
-                }],
-                flags: 64
-            });
+                await interaction.reply({
+                    embeds: [{
+                        color: 0xa674cc,
+                        title: `Prochain cours de la spécialité ${speciality}`,
+                        description: details
+                    }],
+                    flags: 64
+                });
+            } else {
+                const eventsList = week.map(event => {
+                    let details = `**${event.subject}**\n`;
+                    if (event.type) event.type === 'Skillogs' ? details += `Sur : ${event.type}\n` : details += `Salle : ${event.type}\n`;
+                    if (event.teacher) details += `Professeur : ${event.teacher}\n`;
+                    if (event.classes?.filter(c => c.trim()).length) details += `Classes : ${event.classes.join(', ')}\n`;
+
+                    const start = new Date(event.start);
+                    const end = new Date(event.end);
+
+                    return `${details}De : <t:${Math.floor(start.getTime() / 1000)}:t> à <t:${Math.floor(end.getTime() / 1000)}:t>\n`;
+                }).join('\n');
+
+                await interaction.reply({
+                    embeds: [{
+                        color: 0xa674cc,
+                        title: `Planning de la spécialité ${speciality}`,
+                        description: 'Voici le planning de cette semaine :',
+                        fields: [{ name: 'Événements', value: eventsList }]
+                    }],
+                    flags: 64
+                });
+            }
         } catch (error) {
             console.error('Erreur :', error);
             await interaction.reply({ content: 'Une erreur est survenue lors de la récupération du planning.', flags: 64 });
