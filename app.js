@@ -256,9 +256,9 @@ client.on('interactionCreate', async (interaction) => {
 
     const { commandName, options } = interaction;
 
-        let url = process.env.PLANNING_SLAM;
     if (commandName === 'planning') {
         const speciality = options.getString('spécialité');
+        let url;
 
         if (speciality === 'SLAM') url = encodeURIComponent(process.env.PLANNING_SLAM);
         else if (speciality === 'SISR') url = encodeURIComponent(process.env.PLANNING_SISR);
