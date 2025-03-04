@@ -1,8 +1,8 @@
 <div align="center">
-  <a href="https://sylvain.pro/projets/wrkit"><img src="https://github.com/20syldev/WrkIT/blob/master/src/wrkit.png" alt="Logo" width="25%" height="auto"/></a>
+  <a href="https://wrkit.sylvain.pro"><img src="https://github.com/20syldev/WrkIT/blob/master/src/wrkit.png" alt="Logo" width="25%" height="auto"/></a>
 
   # WrkIT - Bot Discord
-  [![Version](https://custom-icon-badges.demolab.com/badge/Version%20:-v2.0.4-6479ee?logo=wrkit&labelColor=23272A)](https://github.com/20syldev/WrkIT/releases/latest)
+  [![Version](https://custom-icon-badges.demolab.com/badge/Version%20:-v2.0.5-6479ee?logo=wrkit&labelColor=23272A)](https://github.com/20syldev/WrkIT/releases/latest)
 </div>
 
 ---
