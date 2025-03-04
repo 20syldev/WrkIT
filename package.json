@@ -1,5 +1,5 @@
 {
-    "version": "2.0.4",
+    "version": "2.0.5",
     "name": "wrkit",
     "description": "Bot Discord utilitaire pour le serveur du BTS SIO",
     "main": "app.js",
@@ -27,5 +27,6 @@
         "utility"
     ],
     "author": "Sylvain L.",
-    "license": "BSD 3-Clause"
+    "license": "BSD 3-Clause",
+    "homepage": "https://wrkit.sylvain.pro"
 }
