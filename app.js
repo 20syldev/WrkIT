@@ -1,9 +1,7 @@
 import dotenv from 'dotenv';
 import express from 'express';
-import fs from 'fs';
 import path from 'path';
 import pkg from 'discord.js';
-import { createServer } from 'http';
 
 // ----- ----- ----- CONFIGURATION EXPRESS ----- ----- ----- //
 
@@ -14,7 +12,15 @@ dotenv.config();
 const app = express();
 const __dirname = path.resolve();
 const port = process.env.PORT || 4000;
-const server = process.env.SERVER || 8080;
+
+// Servir les fichiers statiques
+app.use(express.static(path.join(__dirname)));
+
+// Erreur 500
+app.use((req, res) => res.status(500).sendFile(path.join(__dirname, 'erreur.html')));
+
+// Page principale
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));    
 
 // ----- ----- ----- CONFIGURATION DISCORD ----- ----- ----- //
 
@@ -456,33 +462,6 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 // ----- ----- ----- CONNEXION ----- ----- ----- //
-
-// Serveur Web HTTP
-createServer((req, res) => {
-    try {
-        const filePath = path.join(__dirname, req.url === '/' ? 'index.html' : req.url);
-
-        fs.readFile(filePath, (err, data) => {
-            if (err) {
-                fs.readFile(path.join(__dirname, 'error.html'), (errorErr, errorData) => {
-                    if (errorErr) {
-                        res.writeHead(500, { 'Content-Type': 'text/plain' });
-                        res.end('Internal Server Error');
-                        return;
-                    }
-                    res.writeHead(err.code === 'ENOENT' ? 404 : 500, { 'Content-Type': 'text/html' });
-                    res.end(errorData);
-                });
-                return;
-            }
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.end(data);
-        });
-    } catch (error) {
-        res.writeHead(500, { 'Content-Type': 'text/plain' });
-        res.end('Internal Server Error');
-    }
-}).listen(server, () => console.log(`✅ Serveur web en ligne sur le port ${server}`));
 
 // Connexion du bot
 client.login(process.env.TOKEN);
