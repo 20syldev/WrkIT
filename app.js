@@ -1,7 +1,9 @@
 import dotenv from 'dotenv';
 import express from 'express';
+import fs from 'fs';
+import path from 'path';
 import pkg from 'discord.js';
-import { createServer } from 'https';
+import { createServer } from 'http';
 const { ActivityType, Client, GatewayIntentBits, GuildScheduledEventEntityType, Partials, REST, Routes } = pkg;
 
 // Client Discord
@@ -24,12 +26,34 @@ const port = process.env.PORT || 4000;
 const server = process.env.SERVER || 8080;
 
 app.listen(port, () => console.log(`Serveur défini avec le port ${port}`));
+const __dirname = path.resolve();
 
-// Serveur Web HTTPS
+// Serveur Web HTTP
 createServer((req, res) => {
-    res.write('Bot en ligne');
-    res.end();
-}).listen(server, () => console.log(`Serveur HTTPS en ligne sur le port ${server}`));
+    try {
+        const filePath = path.join(__dirname, req.url === '/' ? 'index.html' : req.url);
+
+        fs.readFile(filePath, (err, data) => {
+            if (err) {
+                fs.readFile(path.join(__dirname, 'error.html'), (errorErr, errorData) => {
+                    if (errorErr) {
+                        res.writeHead(500, { 'Content-Type': 'text/plain' });
+                        res.end('Internal Server Error');
+                        return;
+                    }
+                    res.writeHead(err.code === 'ENOENT' ? 404 : 500, { 'Content-Type': 'text/html' });
+                    res.end(errorData);
+                });
+                return;
+            }
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end(data);
+        });
+    } catch (error) {
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Internal Server Error');
+    }
+}).listen(server, () => console.log(`✅ Serveur web en ligne sur le port ${server}`));
 
 // Configuration des commandes slash
 const commands = [
