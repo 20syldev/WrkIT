@@ -62,55 +62,55 @@ const commands = [
             {
                 type: 3,
                 name: 'nom',
-                description: "Nom de l'événement",
+                description: 'Nom de l\'événement',
                 required: true
             },
             {
                 type: 3,
                 name: 'lieu',
-                description: "Lieu de l'événement",
+                description: 'Lieu de l\'événement',
                 required: true
             },
             {
                 type: 4,
                 name: 'jour',
-                description: "Jour de l'événement (1-31)",
+                description: 'Jour de l\'événement (1-31)',
                 required: true
             },
             {
                 type: 4,
                 name: 'mois',
-                description: "Mois de l'événement (1-12)",
+                description: 'Mois de l\'événement (1-12)',
                 required: true
             },
             {
                 type: 4,
                 name: 'année',
-                description: "Année de l'événement",
+                description: 'Année de l\'événement',
                 required: true
             },
             {
                 type: 4,
                 name: 'heure',
-                description: "Heure de l'événement (0-23)",
+                description: 'Heure de l\'événement (0-23)',
                 required: true
             },
             {
                 type: 4,
                 name: 'minute',
-                description: "Minutes de l'événement (0-59)",
+                description: 'Minutes de l\'événement (0-59)',
                 required: true
             },
             {
                 type: 4,
                 name: 'durée',
-                description: "Durée de l'événement en minutes",
+                description: 'Durée de l\'événement en minutes',
                 required: false
             },
             {
                 type: 3,
                 name: 'description',
-                description: "Description de l'événement",
+                description: 'Description de l\'événement',
                 required: false
             }
         ]
@@ -122,61 +122,61 @@ const commands = [
             {
                 type: 3,
                 name: 'id',
-                description: "ID de l'événement à modifier",
+                description: 'ID de l\'événement à modifier',
                 required: true
             },
             {
                 type: 3,
                 name: 'nom',
-                description: "Nom de l'événement",
+                description: 'Nom de l\'événement',
                 required: false
             },
             {
                 type: 3,
                 name: 'lieu',
-                description: "Lieu de l'événement",
+                description: 'Lieu de l\'événement',
                 required: false
             },
             {
                 type: 4,
                 name: 'jour',
-                description: "Jour de l'événement (1-31)",
+                description: 'Jour de l\'événement (1-31)',
                 required: false
             },
             {
                 type: 4,
                 name: 'mois',
-                description: "Mois de l'événement (1-12)",
+                description: 'Mois de l\'événement (1-12)',
                 required: false
             },
             {
                 type: 4,
                 name: 'année',
-                description: "Année de l'événement",
+                description: 'Année de l\'événement',
                 required: false
             },
             {
                 type: 4,
                 name: 'heure',
-                description: "Heure de l'événement (0-23)",
+                description: 'Heure de l\'événement (0-23)',
                 required: false
             },
             {
                 type: 4,
                 name: 'minute',
-                description: "Minutes de l'événement (0-59)",
+                description: 'Minutes de l\'événement (0-59)',
                 required: false
             },
             {
                 type: 4,
                 name: 'durée',
-                description: "Durée de l'événement en minutes",
+                description: 'Durée de l\'événement en minutes',
                 required: false
             },
             {
                 type: 3,
                 name: 'description',
-                description: "Description de l'événement",
+                description: 'Description de l\'événement',
                 required: false
             }
         ]
@@ -188,7 +188,7 @@ const commands = [
             {
                 type: 3,
                 name: 'id',
-                description: "ID de l'événement à supprimer",
+                description: 'ID de l\'événement à supprimer',
                 required: true
             }
         ]
