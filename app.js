@@ -4,6 +4,21 @@ import fs from 'fs';
 import path from 'path';
 import pkg from 'discord.js';
 import { createServer } from 'http';
+
+// ----- ----- ----- CONFIGURATION EXPRESS ----- ----- ----- //
+
+// Environnement
+dotenv.config();
+
+// Express
+const app = express();
+const __dirname = path.resolve();
+const port = process.env.PORT || 4000;
+const server = process.env.SERVER || 8080;
+
+// ----- ----- ----- CONFIGURATION DISCORD ----- ----- ----- //
+
+// Modules Discord
 const { ActivityType, Client, GatewayIntentBits, GuildScheduledEventEntityType, Partials, REST, Routes } = pkg;
 
 // Client Discord
@@ -19,43 +34,10 @@ const client = new Client({
     partials: [Partials.Channel]
 });
 
-// Express
-dotenv.config();
-const app = express();
-const port = process.env.PORT || 4000;
-const server = process.env.SERVER || 8080;
+// API REST Discord
+const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
-app.listen(port, () => console.log(`Serveur défini avec le port ${port}`));
-const __dirname = path.resolve();
-
-// Serveur Web HTTP
-createServer((req, res) => {
-    try {
-        const filePath = path.join(__dirname, req.url === '/' ? 'index.html' : req.url);
-
-        fs.readFile(filePath, (err, data) => {
-            if (err) {
-                fs.readFile(path.join(__dirname, 'error.html'), (errorErr, errorData) => {
-                    if (errorErr) {
-                        res.writeHead(500, { 'Content-Type': 'text/plain' });
-                        res.end('Internal Server Error');
-                        return;
-                    }
-                    res.writeHead(err.code === 'ENOENT' ? 404 : 500, { 'Content-Type': 'text/html' });
-                    res.end(errorData);
-                });
-                return;
-            }
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.end(data);
-        });
-    } catch (error) {
-        res.writeHead(500, { 'Content-Type': 'text/plain' });
-        res.end('Internal Server Error');
-    }
-}).listen(server, () => console.log(`✅ Serveur web en ligne sur le port ${server}`));
-
-// Configuration des commandes slash
+// Commandes slash Discord
 const commands = [
     {
         name: 'planning',
@@ -213,10 +195,7 @@ const commands = [
     }
 ];
 
-// Configuration de l'API REST Discord
-const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
-
-// Enregistrement des commandes
+// Enregistrement des commandes slash
 (async () => {
     try {
         console.log('Début de la mise à jour des commandes (/) de l\'application.');
@@ -227,10 +206,11 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
     }
 })();
 
+// ----- ----- ----- APPLICATION ----- ----- ----- //
 
 // Statut du bot & calcul des membres
 client.on('ready', (x) => {
-    console.log(`✅ ${x.user.tag} en ligne !`);
+    console.log(`✅ ${x.user.username} connecté à Discord !`);
     const server = client.guilds.cache.get(process.env.GUILD_ID);
     const members = server.memberCount;
     const slam = server.members.cache.filter(member => member.roles.cache.has(process.env.ROLE_SLAM)).size;
@@ -440,6 +420,35 @@ client.on('interactionCreate', async (interaction) => {
     }
 });
 
+// ----- ----- ----- CONNEXION ----- ----- ----- //
 
-// Connexion à Discord
+// Serveur Web HTTP
+createServer((req, res) => {
+    try {
+        const filePath = path.join(__dirname, req.url === '/' ? 'index.html' : req.url);
+
+        fs.readFile(filePath, (err, data) => {
+            if (err) {
+                fs.readFile(path.join(__dirname, 'error.html'), (errorErr, errorData) => {
+                    if (errorErr) {
+                        res.writeHead(500, { 'Content-Type': 'text/plain' });
+                        res.end('Internal Server Error');
+                        return;
+                    }
+                    res.writeHead(err.code === 'ENOENT' ? 404 : 500, { 'Content-Type': 'text/html' });
+                    res.end(errorData);
+                });
+                return;
+            }
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end(data);
+        });
+    } catch (error) {
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Internal Server Error');
+    }
+}).listen(server, () => console.log(`✅ Serveur web en ligne sur le port ${server}`));
+
+// Connexion du bot
 client.login(process.env.TOKEN);
+app.listen(port, () => console.log(`✅ Bot en ligne sur le port ${port}`));
