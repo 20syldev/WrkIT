@@ -25,7 +25,18 @@ app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 // ----- ----- ----- CONFIGURATION DISCORD ----- ----- ----- //
 
 // Modules Discord
-const { ActivityType, Client, GatewayIntentBits, GuildScheduledEventEntityType, Partials, REST, Routes } = pkg;
+const {
+    ActionRowBuilder,
+    ActivityType,
+    ButtonBuilder,
+    ButtonStyle,
+    Client,
+    GatewayIntentBits,
+    GuildScheduledEventEntityType,
+    Partials,
+    REST,
+    Routes
+} = pkg;
 
 // Client Discord
 const client = new Client({
