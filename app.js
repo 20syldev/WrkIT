@@ -308,7 +308,7 @@ client.on('interactionCreate', async (interaction) => {
 
             const week = data.filter(event => {
                 const date = new Date(event.start);
-                return date >= startDate && date <= endDate;
+                return date <= endDate;
             });
 
             if (visualiser === 'dynamique') {
