@@ -73,11 +73,11 @@ const commands = [
             {
                 type: 3,
                 name: 'visualiser',
-                description: 'Visualiser le planning différemment',
+                description: 'Visualiser différentes informations',
                 required: false,
                 choices: [
-                    { name: 'Dynamiquement', value: 'dynamique' },
-                    { name: 'Statiquement', value: 'statique' }
+                    { name: 'Cours actuel', value: 'current' },
+                    { name: 'Prochain cours', value: 'next' }
                 ]
             }
         ],
@@ -311,7 +311,7 @@ client.on('interactionCreate', async (interaction) => {
                 return date <= endDate;
             });
 
-            if (visualiser === 'dynamique') {
+            if (visualiser === 'next') {
                 const next = week.find(event => new Date(event.start) > currentDate);
                 if (!next) return interaction.reply({ content: 'Aucun événement à venir cette semaine.', flags: 64 });
 
@@ -329,6 +329,28 @@ client.on('interactionCreate', async (interaction) => {
                     embeds: [{
                         color: 0xa674cc,
                         title: `Prochain cours de la spécialité ${speciality}`,
+                        description: details
+                    }],
+                    flags: 64
+                });
+            } else if (visualiser === 'current') {
+                const current = week.find(event => new Date(event.start) <= currentDate && new Date(event.end) >= currentDate);
+                if (!current) return interaction.reply({ content: 'Aucun cours actuellement.', flags: 64 });
+
+                const start = new Date(current.start);
+                const end = new Date(current.end);
+
+                const details = `**${current.subject}**\n` +
+                    (current.type ? (current.type === 'Skillogs' ? `Sur : ${current.type}\n` : `Salle : ${current.type}\n`) : '') +
+                    (current.teacher ? `Professeur : ${current.teacher}\n` : '') +
+                    (current.classes?.filter(c => c.trim()).length ? `Classes : ${current.classes.join(', ')}\n` : '') +
+                    `De : <t:${Math.floor(start.getTime() / 1000)}:t> à <t:${Math.floor(end.getTime() / 1000)}:t>\n` +
+                    `Termine <t:${Math.floor(end.getTime() / 1000)}:R>`;
+
+                await interaction.reply({
+                    embeds: [{
+                        color: 0xa674cc,
+                        title: `Cours actuel de la spécialité ${speciality}`,
                         description: details
                     }],
                     flags: 64
