@@ -356,26 +356,118 @@ client.on('interactionCreate', async (interaction) => {
                     flags: 64
                 });
             } else {
+                const currentDate = new Date();
                 const eventsList = week.map(event => {
-                    let details = `**${event.subject}**\n`;
+                    const start = new Date(event.start);
+                    const end = new Date(event.end);
+
+                    const isCurrent = start <= currentDate && end >= currentDate;
+                    const emoji = isCurrent ? ' 🟢' : '';
+
+                    let details = `**${event.subject}${emoji}**\n`;
                     if (event.type) event.type === 'Skillogs' ? details += `Sur : ${event.type}\n` : details += `Salle : ${event.type}\n`;
                     if (event.teacher) details += `Professeur : ${event.teacher}\n`;
                     if (event.classes?.filter(c => c.trim()).length) details += `Classes : ${event.classes.join(', ')}\n`;
 
-                    const start = new Date(event.start);
-                    const end = new Date(event.end);
-
                     return `${details}De : <t:${Math.floor(start.getTime() / 1000)}:t> à <t:${Math.floor(end.getTime() / 1000)}:t>\n`;
-                }).join('\n');
+                });
+
+                const maxLength = 1024;
+                const pages = [];
+                let currentPage = '';
+
+                eventsList.forEach(event => {
+                    if ((currentPage + event).length > maxLength) {
+                        pages.push(currentPage);
+                        currentPage = '';
+                    }
+                    currentPage += event + '\n';
+                });
+                if (currentPage) pages.push(currentPage);
+
+                let pageIndex = 0;
+
+                const row = new ActionRowBuilder()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('previous')
+                            .setLabel('Précédent')
+                            .setStyle(ButtonStyle.Primary)
+                            .setDisabled(pageIndex === 0),
+                        new ButtonBuilder()
+                            .setCustomId('next')
+                            .setLabel('Suivant')
+                            .setStyle(ButtonStyle.Primary)
+                            .setDisabled(pageIndex === pages.length - 1)
+                    );
 
                 await interaction.reply({
                     embeds: [{
                         color: 0xa674cc,
                         title: `Planning de la spécialité ${speciality}`,
                         description: 'Voici le planning de cette semaine :',
-                        fields: [{ name: 'Événements', value: eventsList }]
+                        fields: [{ name: 'Événements', value: pages[pageIndex] }]
                     }],
+                    components: [row],
                     flags: 64
+                });
+
+                const message = await interaction.fetchReply();
+
+                const filter = i => i.customId === 'previous' || i.customId === 'next';
+                const collector = message.createMessageComponentCollector({ filter, time: 60000 });
+
+                collector.on('collect', async i => {
+                    if (i.customId === 'previous') {
+                        pageIndex--;
+                    } else if (i.customId === 'next') {
+                        pageIndex++;
+                    }
+
+                    const newRow = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder()
+                                .setCustomId('previous')
+                                .setLabel('Précédent')
+                                .setStyle(ButtonStyle.Primary)
+                                .setDisabled(pageIndex === 0),
+                            new ButtonBuilder()
+                                .setCustomId('next')
+                                .setLabel('Suivant')
+                                .setStyle(ButtonStyle.Primary)
+                                .setDisabled(pageIndex === pages.length - 1)
+                        );
+
+                    await i.update({
+                        embeds: [{
+                            color: 0xa674cc,
+                            title: `Planning de la spécialité ${speciality}`,
+                            description: 'Voici le planning de cette semaine :',
+                            fields: [{ name: 'Événements', value: pages[pageIndex] }]
+                        }],
+                        components: [newRow],
+                        flags: 64
+                    });
+                });
+
+                collector.on('end', async () => {
+                    const disabledRow = new ActionRowBuilder()
+                        .addComponents(
+                            new ButtonBuilder()
+                                .setCustomId('previous')
+                                .setLabel('Précédent')
+                                .setStyle(ButtonStyle.Primary)
+                                .setDisabled(true),
+                            new ButtonBuilder()
+                                .setCustomId('next')
+                                .setLabel('Suivant')
+                                .setStyle(ButtonStyle.Primary)
+                                .setDisabled(true)
+                        );
+
+                    await message.edit({
+                        components: [disabledRow]
+                    });
                 });
             }
         } catch (error) {
