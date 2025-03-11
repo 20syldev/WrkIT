@@ -64,18 +64,48 @@ const commands = [
                 type: 3,
                 name: 'titre',
                 description: 'Titre de l\'embed',
-                required: true
+                required: false
             },
             {
                 type: 3,
                 name: 'description',
                 description: 'Description de l\'embed',
-                required: true
+                required: false
             },
             {
                 type: 3,
                 name: 'couleur',
                 description: 'Couleur de l\'embed (hexadécimal)',
+                required: false
+            },
+            {
+                type: 3,
+                name: 'author',
+                description: 'Auteur de l\'embed',
+                required: false
+            },
+            {
+                type: 3,
+                name: 'footer',
+                description: 'Pied de page de l\'embed',
+                required: false
+            },
+            {
+                type: 3,
+                name: 'thumbnail',
+                description: 'URL de la miniature de l\'embed',
+                required: false
+            },
+            {
+                type: 3,
+                name: 'image',
+                description: 'URL de l\'image de l\'embed',
+                required: false
+            },
+            {
+                type: 5,
+                name: 'timestamp',
+                description: 'Ajouter un timestamp à l\'embed',
                 required: false
             }
         ]
@@ -313,11 +343,25 @@ client.on('interactionCreate', async (interaction) => {
         const titre = options.getString('titre');
         const description = options.getString('description');
         const couleur = options.getString('couleur') || '#a674cc';
+        const author = options.getString('author');
+        const footer = options.getString('footer');
+        const thumbnail = options.getString('thumbnail');
+        const image = options.getString('image');
+        const timestamp = options.getBoolean('timestamp');
+
+        if (!titre && !description && !author && !footer && !thumbnail && !image) {
+            return await interaction.reply({ content: 'Vous devez au moins fournir un titre, une description, un auteur, un pied de page, une miniature ou une image.', flags: 64 });
+        }
 
         const embed = {
             color: parseInt(couleur.replace('#', ''), 16),
             title: titre,
-            description: description
+            description: description,
+            author: author ? { name: author } : undefined,
+            footer: footer ? { text: footer } : undefined,
+            thumbnail: thumbnail ? { url: thumbnail } : undefined,
+            image: image ? { url: image } : undefined,
+            timestamp: timestamp ? new Date() : undefined
         };
 
         await interaction.channel.send({ embeds: [embed] });
