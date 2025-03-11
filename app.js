@@ -57,6 +57,30 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 // Commandes slash Discord
 const commands = [
     {
+        name: 'embed',
+        description: 'Créer un embed personnalisé',
+        options: [
+            {
+                type: 3,
+                name: 'titre',
+                description: 'Titre de l\'embed',
+                required: true
+            },
+            {
+                type: 3,
+                name: 'description',
+                description: 'Description de l\'embed',
+                required: true
+            },
+            {
+                type: 3,
+                name: 'couleur',
+                description: 'Couleur de l\'embed (hexadécimal)',
+                required: false
+            }
+        ]
+    },
+    {
         name: 'event-add',
         description: 'Ajouter un événement Discord',
         options: [
@@ -275,6 +299,29 @@ client.on('ready', (x) => {
         client.user.setActivity(activities[activityIndex]);
         activityIndex = (activityIndex + 1) % activities.length;
     }, 20000);
+});
+
+// ----- ----- ----- COMMANDES UTILITAIRES ----- ----- ----- //
+
+// Créer un embed personnalisé
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isCommand()) return;
+
+    const { commandName, options } = interaction;
+
+    if (commandName === 'embed') {
+        const titre = options.getString('titre');
+        const description = options.getString('description');
+        const couleur = options.getString('couleur') || '#a674cc';
+
+        const embed = {
+            color: parseInt(couleur.replace('#', ''), 16),
+            title: titre,
+            description: description
+        };
+
+        await interaction.reply({ embeds: [embed] });
+    }
 });
 
 // ----- ----- ----- COMMANDES DE GESTION ----- ----- ----- //
