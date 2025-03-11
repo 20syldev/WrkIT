@@ -252,8 +252,8 @@ const commands = [
         console.log('Début de la mise à jour des commandes (/) de l\'application.');
         await rest.put(Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID), { body: commands });
         console.log('Les commandes (/) de l\'application ont été mises à jour avec succès.');
-    } catch (error) {
-        console.error(error);
+    } catch (err) {
+        console.error(err);
     }
 })();
 
@@ -363,8 +363,8 @@ client.on('interactionCreate', async (interaction) => {
         try {
             await interaction.guild.scheduledEvents.create(data);
             await interaction.reply({ content: `Événement ajouté : **${nom}** à **${lieu}** le **${startDate.toLocaleDateString('fr-FR')}** à **${startDate.toLocaleTimeString('fr-FR')}**.`, flags: 64 });
-        } catch (error) {
-            console.error(error);
+        } catch (err) {
+            console.error(err);
             await interaction.reply({ content: 'Une erreur est survenue lors de l\'ajout de l\'événement.', flags: 64 });
         }
     }
@@ -407,8 +407,8 @@ client.on('interactionCreate', async (interaction) => {
         try {
             await event.edit(data);
             await interaction.reply({ content: `Événement **${id}** modifié.`, flags: 64 });
-        } catch (error) {
-            console.error(error);
+        } catch (err) {
+            console.error(err);
             await interaction.reply({ content: 'Une erreur est survenue lors de la modification de l\'événement.', flags: 64 });
         }
     }
@@ -428,8 +428,8 @@ client.on('interactionCreate', async (interaction) => {
         try {
             await event.delete();
             await interaction.reply({ content: `Événement **${id}** supprimé.`, flags: 64 });
-        } catch (error) {
-            console.error(error);
+        } catch (err) {
+            console.error(err);
             await interaction.reply({ content: 'Une erreur est survenue lors de la suppression de l\'événement.', flags: 64 });
         }
     }
@@ -578,11 +578,8 @@ client.on('interactionCreate', async (interaction) => {
                 const collector = message.createMessageComponentCollector({ filter, time: 60000 });
 
                 collector.on('collect', async i => {
-                    if (i.customId === 'previous') {
-                        pageIndex--;
-                    } else if (i.customId === 'next') {
-                        pageIndex++;
-                    }
+                    if (i.customId === 'previous') pageIndex--;
+                    else if (i.customId === 'next') pageIndex++;
 
                     const newRow = new ActionRowBuilder()
                         .addComponents(
@@ -630,8 +627,8 @@ client.on('interactionCreate', async (interaction) => {
                     });
                 });
             }
-        } catch (error) {
-            console.error('Erreur :', error);
+        } catch (err) {
+            console.error(err);
             await interaction.reply({ content: 'Une erreur est survenue lors de la récupération du planning.', flags: 64 });
         }
     }
