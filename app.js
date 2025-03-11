@@ -594,16 +594,21 @@ client.on('interactionCreate', async (interaction) => {
                                 .setDisabled(pageIndex === pages.length - 1)
                         );
 
-                    await i.update({
-                        embeds: [{
-                            color: 0xa674cc,
-                            title: `Planning de la spécialité ${speciality}`,
-                            description: 'Voici le planning de cette semaine :',
-                            fields: [{ name: 'Événements', value: pages[pageIndex] }]
-                        }],
-                        components: [newRow],
-                        flags: 64
-                    });
+                    try {
+                        await i.update({
+                            embeds: [{
+                                color: 0xa674cc,
+                                title: `Planning de la spécialité ${speciality}`,
+                                description: 'Voici le planning de cette semaine :',
+                                fields: [{ name: 'Événements', value: pages[pageIndex] }]
+                            }],
+                            components: [newRow],
+                            flags: 64
+                        });
+                    } catch (err) {
+                        console.error(err);
+                        await i.reply({ content: 'Une erreur est survenue lors de la mise à jour du message.', flags: 64 });
+                    }
                 });
 
                 collector.on('end', async () => {
@@ -621,9 +626,8 @@ client.on('interactionCreate', async (interaction) => {
                                 .setDisabled(true)
                         );
 
-                    await message.edit({
-                        components: [disabledRow]
-                    });
+                    try { await message.edit({ components: [disabledRow] }); }
+                    catch (err) {}
                 });
             }
         } catch (err) {
