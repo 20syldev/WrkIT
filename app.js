@@ -462,7 +462,9 @@ client.on('interactionCreate', async (interaction) => {
             if (!data?.length) return interaction.reply({ content: 'Aucune données disponibles.', flags: 64 });
 
             const currentDate = new Date();
-            const startDate = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay() + (currentDate.getDay() === 0 ? -6 : 1)));
+            const startDate = new Date(currentDate);
+            startDate.setDate(currentDate.getDate() - currentDate.getDay() + (currentDate.getDay() === 0 ? -6 : 1));
+
             const endDate = new Date(startDate);
             endDate.setDate(startDate.getDate() + 6);
 
