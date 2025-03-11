@@ -468,10 +468,7 @@ client.on('interactionCreate', async (interaction) => {
             const endDate = new Date(startDate);
             endDate.setDate(startDate.getDate() + 6);
 
-            const week = data.filter(event => {
-                const date = new Date(event.start);
-                return date <= endDate;
-            });
+            const week = data.filter(event => new Date(event.start) <= endDate);
 
             if (visualiser === 'next') {
                 const next = week.find(event => new Date(event.start) > currentDate);
