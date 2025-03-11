@@ -57,32 +57,6 @@ const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 // Commandes slash Discord
 const commands = [
     {
-        name: 'planning',
-        description: 'Afficher le planning de la classe',
-        options: [
-            {
-                type: 3,
-                name: 'spécialité',
-                description: 'Spécialité de la classe (SLAM ou SISR)',
-                required: true,
-                choices: [
-                    { name: 'SLAM', value: 'SLAM' },
-                    { name: 'SISR', value: 'SISR' }
-                ]
-            },
-            {
-                type: 3,
-                name: 'visualiser',
-                description: 'Visualiser différentes informations',
-                required: false,
-                choices: [
-                    { name: 'Cours actuel', value: 'current' },
-                    { name: 'Prochain cours', value: 'next' }
-                ]
-            }
-        ],
-    },
-    {
         name: 'event-add',
         description: 'Ajouter un événement Discord',
         options: [
@@ -219,6 +193,32 @@ const commands = [
                 required: true
             }
         ]
+    },
+    {
+        name: 'planning',
+        description: 'Afficher le planning de la classe',
+        options: [
+            {
+                type: 3,
+                name: 'spécialité',
+                description: 'Spécialité de la classe (SLAM ou SISR)',
+                required: true,
+                choices: [
+                    { name: 'SLAM', value: 'SLAM' },
+                    { name: 'SISR', value: 'SISR' }
+                ]
+            },
+            {
+                type: 3,
+                name: 'visualiser',
+                description: 'Visualiser différentes informations',
+                required: false,
+                choices: [
+                    { name: 'Cours actuel', value: 'current' },
+                    { name: 'Prochain cours', value: 'next' }
+                ]
+            }
+        ],
     }
 ];
 
@@ -276,6 +276,119 @@ client.on('ready', (x) => {
         activityIndex = (activityIndex + 1) % activities.length;
     }, 20000);
 });
+
+// ----- ----- ----- COMMANDES DE GESTION ----- ----- ----- //
+
+// Ajouter un événement
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isCommand()) return;
+
+    const { commandName, options } = interaction;
+
+    if (commandName === 'event-add') {
+        const nom = options.getString('nom');
+        const lieu = options.getString('lieu');
+        const jour = options.getInteger('jour');
+        const mois = options.getInteger('mois');
+        const annee = options.getInteger('année');
+        const heure = options.getInteger('heure');
+        const minute = options.getInteger('minute');
+        const duree = options.getInteger('durée');
+        const description = options.getString('description');
+
+        const startDate = new Date(annee, mois - 1, jour, heure, minute);
+        const endDate = new Date(startDate.getTime() + (duree || 120) * 60 * 1000);
+
+        if (startDate < new Date()) return await interaction.reply({ content: 'La date de début de l\'événement ne peut pas être dans le passé.', flags: 64 });
+
+        const data = {
+            name: nom,
+            description,
+            scheduledStartTime: startDate.toISOString(),
+            scheduledEndTime: endDate.toISOString(),
+            entityType: GuildScheduledEventEntityType.External,
+            entityMetadata: {
+                location: lieu
+            },
+            privacyLevel: 2
+        };
+
+        try {
+            await interaction.guild.scheduledEvents.create(data);
+            await interaction.reply({ content: `Événement ajouté : **${nom}** à **${lieu}** le **${startDate.toLocaleDateString('fr-FR')}** à **${startDate.toLocaleTimeString('fr-FR')}**.`, flags: 64 });
+        } catch (error) {
+            console.error(error);
+            await interaction.reply({ content: 'Une erreur est survenue lors de l\'ajout de l\'événement.', flags: 64 });
+        }
+    }
+});
+
+// Modifier un événement
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isCommand()) return;
+
+    const { commandName, options } = interaction;
+
+    if (commandName === 'event-edit') {
+        const id = options.getString('id');
+        const nom = options.getString('nom');
+        const lieu = options.getString('lieu');
+        const jour = options.getInteger('jour');
+        const mois = options.getInteger('mois');
+        const annee = options.getInteger('année');
+        const heure = options.getInteger('heure');
+        const minute = options.getInteger('minute');
+        const duree = options.getInteger('durée');
+        const description = options.getString('description');
+
+        const event = await interaction.guild.scheduledEvents.fetch(id);
+        if (!event) return await interaction.reply({ content: 'Événement non trouvé.', flags: 64 });
+
+        const startDate = new Date(annee, mois - 1, jour, heure, minute);
+        const endDate = new Date(startDate.getTime() + (duree || 120) * 60 * 1000);
+
+        const data = {
+            name: nom || event.name,
+            description: description || event.description,
+            scheduledStartTime: startDate.toISOString(),
+            scheduledEndTime: endDate.toISOString(),
+            entityMetadata: {
+                location: lieu || event.entityMetadata.location
+            }
+        };
+
+        try {
+            await event.edit(data);
+            await interaction.reply({ content: `Événement **${id}** modifié.`, flags: 64 });
+        } catch (error) {
+            console.error(error);
+            await interaction.reply({ content: 'Une erreur est survenue lors de la modification de l\'événement.', flags: 64 });
+        }
+    }
+});
+
+// Supprimer un événement
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isCommand()) return;
+
+    const { commandName, options } = interaction;
+
+    if (commandName === 'event-delete') {
+        const id = options.getString('id');
+        const event = await interaction.guild.scheduledEvents.fetch(id);
+        if (!event) return await interaction.reply({ content: 'Événement non trouvé.', flags: 64 });
+
+        try {
+            await event.delete();
+            await interaction.reply({ content: `Événement **${id}** supprimé.`, flags: 64 });
+        } catch (error) {
+            console.error(error);
+            await interaction.reply({ content: 'Une erreur est survenue lors de la suppression de l\'événement.', flags: 64 });
+        }
+    }
+});
+
+// ----- ----- ----- COMMANDES D'INFORMATIONS ----- ----- ----- //
 
 // Afficher le planning
 client.on('interactionCreate', async (interaction) => {
@@ -473,115 +586,6 @@ client.on('interactionCreate', async (interaction) => {
         } catch (error) {
             console.error('Erreur :', error);
             await interaction.reply({ content: 'Une erreur est survenue lors de la récupération du planning.', flags: 64 });
-        }
-    }
-});
-
-// Ajouter un événement
-client.on('interactionCreate', async (interaction) => {
-    if (!interaction.isCommand()) return;
-
-    const { commandName, options } = interaction;
-
-    if (commandName === 'event-add') {
-        const nom = options.getString('nom');
-        const lieu = options.getString('lieu');
-        const jour = options.getInteger('jour');
-        const mois = options.getInteger('mois');
-        const annee = options.getInteger('année');
-        const heure = options.getInteger('heure');
-        const minute = options.getInteger('minute');
-        const duree = options.getInteger('durée');
-        const description = options.getString('description');
-
-        const startDate = new Date(annee, mois - 1, jour, heure, minute);
-        const endDate = new Date(startDate.getTime() + (duree || 120) * 60 * 1000);
-
-        if (startDate < new Date()) return await interaction.reply({ content: 'La date de début de l\'événement ne peut pas être dans le passé.', flags: 64 });
-
-        const data = {
-            name: nom,
-            description,
-            scheduledStartTime: startDate.toISOString(),
-            scheduledEndTime: endDate.toISOString(),
-            entityType: GuildScheduledEventEntityType.External,
-            entityMetadata: {
-                location: lieu
-            },
-            privacyLevel: 2
-        };
-
-        try {
-            await interaction.guild.scheduledEvents.create(data);
-            await interaction.reply({ content: `Événement ajouté : **${nom}** à **${lieu}** le **${startDate.toLocaleDateString('fr-FR')}** à **${startDate.toLocaleTimeString('fr-FR')}**.`, flags: 64 });
-        } catch (error) {
-            console.error(error);
-            await interaction.reply({ content: 'Une erreur est survenue lors de l\'ajout de l\'événement.', flags: 64 });
-        }
-    }
-});
-
-// Modifier un événement
-client.on('interactionCreate', async (interaction) => {
-    if (!interaction.isCommand()) return;
-
-    const { commandName, options } = interaction;
-
-    if (commandName === 'event-edit') {
-        const id = options.getString('id');
-        const nom = options.getString('nom');
-        const lieu = options.getString('lieu');
-        const jour = options.getInteger('jour');
-        const mois = options.getInteger('mois');
-        const annee = options.getInteger('année');
-        const heure = options.getInteger('heure');
-        const minute = options.getInteger('minute');
-        const duree = options.getInteger('durée');
-        const description = options.getString('description');
-
-        const event = await interaction.guild.scheduledEvents.fetch(id);
-        if (!event) return await interaction.reply({ content: 'Événement non trouvé.', flags: 64 });
-
-        const startDate = new Date(annee, mois - 1, jour, heure, minute);
-        const endDate = new Date(startDate.getTime() + (duree || 120) * 60 * 1000);
-
-        const data = {
-            name: nom || event.name,
-            description: description || event.description,
-            scheduledStartTime: startDate.toISOString(),
-            scheduledEndTime: endDate.toISOString(),
-            entityMetadata: {
-                location: lieu || event.entityMetadata.location
-            }
-        };
-
-        try {
-            await event.edit(data);
-            await interaction.reply({ content: `Événement **${id}** modifié.`, flags: 64 });
-        } catch (error) {
-            console.error(error);
-            await interaction.reply({ content: 'Une erreur est survenue lors de la modification de l\'événement.', flags: 64 });
-        }
-    }
-});
-
-// Supprimer un événement
-client.on('interactionCreate', async (interaction) => {
-    if (!interaction.isCommand()) return;
-
-    const { commandName, options } = interaction;
-
-    if (commandName === 'event-delete') {
-        const id = options.getString('id');
-        const event = await interaction.guild.scheduledEvents.fetch(id);
-        if (!event) return await interaction.reply({ content: 'Événement non trouvé.', flags: 64 });
-
-        try {
-            await event.delete();
-            await interaction.reply({ content: `Événement **${id}** supprimé.`, flags: 64 });
-        } catch (error) {
-            console.error(error);
-            await interaction.reply({ content: 'Une erreur est survenue lors de la suppression de l\'événement.', flags: 64 });
         }
     }
 });
