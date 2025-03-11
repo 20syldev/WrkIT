@@ -320,7 +320,8 @@ client.on('interactionCreate', async (interaction) => {
             description: description
         };
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.channel.send({ embeds: [embed] });
+        await interaction.reply({ content: 'Embed envoyé !', flags: 64 });
     }
 });
 
