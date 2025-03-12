@@ -80,19 +80,19 @@ const commands = [
             },
             {
                 type: 3,
-                name: 'author',
+                name: 'auteur',
                 description: 'Auteur de l\'embed',
                 required: false
             },
             {
                 type: 3,
-                name: 'footer',
+                name: 'pied',
                 description: 'Pied de page de l\'embed',
                 required: false
             },
             {
                 type: 3,
-                name: 'thumbnail',
+                name: 'miniature',
                 description: 'URL de la miniature de l\'embed',
                 required: false
             },
@@ -104,8 +104,8 @@ const commands = [
             },
             {
                 type: 5,
-                name: 'timestamp',
-                description: 'Ajouter un timestamp à l\'embed',
+                name: 'horodatage',
+                description: 'Ajouter un horodatage à l\'embed',
                 required: false
             }
         ]
@@ -268,8 +268,8 @@ const commands = [
                 description: 'Visualiser différentes informations',
                 required: false,
                 choices: [
-                    { name: 'Cours actuel', value: 'current' },
-                    { name: 'Prochain cours', value: 'next' }
+                    { name: 'Cours actuel', value: 'actuel' },
+                    { name: 'Cours suivant', value: 'suivant' }
                 ]
             }
         ],
@@ -282,8 +282,8 @@ const commands = [
         console.log('Début de la mise à jour des commandes (/) de l\'application.');
         await rest.put(Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID), { body: commands });
         console.log('Les commandes (/) de l\'application ont été mises à jour avec succès.');
-    } catch (err) {
-        console.error(err);
+    } catch (erreur) {
+        console.error(erreur);
     }
 })();
 
@@ -292,14 +292,13 @@ const commands = [
 // Statut du bot & calcul des membres
 client.on('ready', (x) => {
     console.log(`✅ ${x.user.username} connecté à Discord !`);
-    const server = client.guilds.cache.get(process.env.GUILD_ID);
-    const members = server.memberCount;
-    const slam = server.members.cache.filter(member => member.roles.cache.has(process.env.ROLE_SLAM)).size;
-    const sisr = server.members.cache.filter(member => member.roles.cache.has(process.env.ROLE_SISR)).size;
-    
+    const serveur = client.guilds.cache.get(process.env.GUILD_ID);
+    const membres = serveur.memberCount;
+    const slam = serveur.members.cache.filter(member => member.roles.cache.has(process.env.ROLE_SLAM)).size;
+    const sisr = serveur.members.cache.filter(member => member.roles.cache.has(process.env.ROLE_SISR)).size;
     const activities = [
         {
-            name: `${members} élèves`,
+            name: `${membres} élèves`,
             type: ActivityType.Watching
         },
         { 
@@ -324,11 +323,18 @@ client.on('ready', (x) => {
         },
     ];
 
-    let activityIndex = 0;
-    setInterval(() => {
-        client.user.setActivity(activities[activityIndex]);
-        activityIndex = (activityIndex + 1) % activities.length;
-    }, 20000);
+    if (process.env.PRODUCTION === 'true') {
+        let i = 0;
+        setInterval(() => {
+            client.user.setActivity(activities[i]);
+            i = (i + 1) % activities.length;
+        }, 20000);
+    } else {
+        client.user.setActivity({
+            name: '💻 En mode développement',
+            type: ActivityType.Custom
+        });
+    }
 });
 
 // ----- ----- ----- COMMANDES UTILITAIRES ----- ----- ----- //
@@ -343,13 +349,13 @@ client.on('interactionCreate', async (interaction) => {
         const titre = options.getString('titre');
         const description = options.getString('description');
         const couleur = options.getString('couleur') || '#a674cc';
-        const author = options.getString('author');
-        const footer = options.getString('footer');
-        const thumbnail = options.getString('thumbnail');
+        const auteur = options.getString('auteur');
+        const pied = options.getString('pied');
+        const miniature = options.getString('miniature');
         const image = options.getString('image');
-        const timestamp = options.getBoolean('timestamp');
+        const horodatage = options.getBoolean('horodatage');
 
-        if (!titre && !description && !author && !footer && !thumbnail && !image) {
+        if (!titre && !description && !auteur && !pied && !miniature && !image) {
             return await interaction.reply({ content: 'Vous devez au moins fournir un titre, une description, un auteur, un pied de page, une miniature ou une image.', flags: 64 });
         }
 
@@ -357,11 +363,11 @@ client.on('interactionCreate', async (interaction) => {
             color: parseInt(couleur.replace('#', ''), 16),
             title: titre,
             description: description,
-            author: author ? { name: author } : undefined,
-            footer: footer ? { text: footer } : undefined,
-            thumbnail: thumbnail ? { url: thumbnail } : undefined,
+            author: auteur ? { name: auteur } : undefined,
+            footer: pied ? { text: pied } : undefined,
+            thumbnail: miniature ? { url: miniature } : undefined,
             image: image ? { url: image } : undefined,
-            timestamp: timestamp ? new Date() : undefined
+            timestamp: horodatage ? new Date() : undefined
         };
 
         await interaction.channel.send({ embeds: [embed] });
@@ -388,16 +394,16 @@ client.on('interactionCreate', async (interaction) => {
         const duree = options.getInteger('durée');
         const description = options.getString('description');
 
-        const startDate = new Date(annee, mois - 1, jour, heure, minute);
-        const endDate = new Date(startDate.getTime() + (duree || 120) * 60 * 1000);
+        const debut = new Date(annee, mois - 1, jour, heure, minute);
+        const fin = new Date(debut.getTime() + (duree || 120) * 60 * 1000);
 
-        if (startDate < new Date()) return await interaction.reply({ content: 'La date de début de l\'événement ne peut pas être dans le passé.', flags: 64 });
+        if (debut < new Date()) return await interaction.reply({ content: 'La date de début de l\'événement ne peut pas être dans le passé.', flags: 64 });
 
-        const data = {
+        const donnees = {
             name: nom,
             description,
-            scheduledStartTime: startDate.toISOString(),
-            scheduledEndTime: endDate.toISOString(),
+            scheduledStartTime: debut.toISOString(),
+            scheduledEndTime: fin.toISOString(),
             entityType: GuildScheduledEventEntityType.External,
             entityMetadata: {
                 location: lieu
@@ -406,10 +412,10 @@ client.on('interactionCreate', async (interaction) => {
         };
 
         try {
-            await interaction.guild.scheduledEvents.create(data);
-            await interaction.reply({ content: `Événement ajouté : **${nom}** à **${lieu}** le **${startDate.toLocaleDateString('fr-FR')}** à **${startDate.toLocaleTimeString('fr-FR')}**.`, flags: 64 });
-        } catch (err) {
-            console.error(err);
+            await interaction.guild.scheduledEvents.create(donnees);
+            await interaction.reply({ content: `Événement ajouté : **${nom}** à **${lieu}** le **${debut.toLocaleDateString('fr-FR')}** à **${debut.toLocaleTimeString('fr-FR')}**.`, flags: 64 });
+        } catch (erreur) {
+            console.error(erreur);
             await interaction.reply({ content: 'Une erreur est survenue lors de l\'ajout de l\'événement.', flags: 64 });
         }
     }
@@ -433,27 +439,27 @@ client.on('interactionCreate', async (interaction) => {
         const duree = options.getInteger('durée');
         const description = options.getString('description');
 
-        const event = await interaction.guild.scheduledEvents.fetch(id);
-        if (!event) return await interaction.reply({ content: 'Événement non trouvé.', flags: 64 });
+        const e = await interaction.guild.scheduledEvents.fetch(id);
+        if (!e) return await interaction.reply({ content: 'Événement non trouvé.', flags: 64 });
 
-        const startDate = new Date(annee, mois - 1, jour, heure, minute);
-        const endDate = new Date(startDate.getTime() + (duree || 120) * 60 * 1000);
+        const debut = new Date(annee, mois - 1, jour, heure, minute);
+        const fin = new Date(debut.getTime() + (duree || 120) * 60 * 1000);
 
-        const data = {
-            name: nom || event.name,
-            description: description || event.description,
-            scheduledStartTime: startDate.toISOString(),
-            scheduledEndTime: endDate.toISOString(),
+        const donnees = {
+            name: nom || e.name,
+            description: description || e.description,
+            scheduledStartTime: debut.toISOString(),
+            scheduledEndTime: fin.toISOString(),
             entityMetadata: {
-                location: lieu || event.entityMetadata.location
+                location: lieu || e.entityMetadata.location
             }
         };
 
         try {
-            await event.edit(data);
+            await e.edit(donnees);
             await interaction.reply({ content: `Événement **${id}** modifié.`, flags: 64 });
-        } catch (err) {
-            console.error(err);
+        } catch (erreur) {
+            console.error(erreur);
             await interaction.reply({ content: 'Une erreur est survenue lors de la modification de l\'événement.', flags: 64 });
         }
     }
@@ -467,14 +473,14 @@ client.on('interactionCreate', async (interaction) => {
 
     if (commandName === 'event-delete') {
         const id = options.getString('id');
-        const event = await interaction.guild.scheduledEvents.fetch(id);
-        if (!event) return await interaction.reply({ content: 'Événement non trouvé.', flags: 64 });
+        const e = await interaction.guild.scheduledEvents.fetch(id);
+        if (!e) return await interaction.reply({ content: 'Événement non trouvé.', flags: 64 });
 
         try {
-            await event.delete();
+            await e.delete();
             await interaction.reply({ content: `Événement **${id}** supprimé.`, flags: 64 });
-        } catch (err) {
-            console.error(err);
+        } catch (erreur) {
+            console.error(erreur);
             await interaction.reply({ content: 'Une erreur est survenue lors de la suppression de l\'événement.', flags: 64 });
         }
     }
@@ -502,30 +508,30 @@ client.on('interactionCreate', async (interaction) => {
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `url=${url}&detail=full`
             });
-            const data = await response.json();
+            const donnees = await response.json();
 
-            if (!data?.length) return interaction.reply({ content: 'Aucune données disponibles.', flags: 64 });
+            if (!donnees?.length) return interaction.reply({ content: 'Aucune données disponibles.', flags: 64 });
 
-            const currentDate = new Date();
-            const startDate = new Date(currentDate);
-            startDate.setDate(currentDate.getDate() - currentDate.getDay() + (currentDate.getDay() === 0 ? -6 : 1));
+            const date = new Date();
+            const debut = new Date(date);
+            debut.setDate(date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1));
 
-            const endDate = new Date(startDate);
-            endDate.setDate(startDate.getDate() + 6);
+            const fin = new Date(debut);
+            fin.setDate(debut.getDate() + 6);
 
-            const week = data.filter(event => new Date(event.start) <= endDate);
+            const semaine = donnees.filter(e => new Date(e.start) <= fin);
 
-            if (visualiser === 'next') {
-                const next = week.find(event => new Date(event.start) > currentDate);
-                if (!next) return interaction.reply({ content: 'Aucun événement à venir cette semaine.', flags: 64 });
+            if (visualiser === 'suivant') {
+                const suivant = semaine.find(e => new Date(e.start) > date);
+                if (!suivant) return interaction.reply({ content: 'Aucun événement à venir cette semaine.', flags: 64 });
 
-                const start = new Date(next.start);
-                const end = new Date(next.end);
+                const start = new Date(suivant.start);
+                const end = new Date(suivant.end);
 
-                const details = `**${next.subject}**\n` +
-                    (next.type ? (next.type === 'Skillogs' ? `Sur : ${next.type}\n` : `Salle : ${next.type}\n`) : '') +
-                    (next.teacher ? `Professeur : ${next.teacher}\n` : '') +
-                    (next.classes?.filter(c => c.trim()).length ? `Classes : ${next.classes.join(', ')}\n` : '') +
+                const details = `**${suivant.subject}**\n` +
+                    (suivant.type ? (suivant.type === 'Skillogs' ? `Sur : ${suivant.type}\n` : `Salle : ${suivant.type}\n`) : '') +
+                    (suivant.teacher ? `Professeur : ${suivant.teacher}\n` : '') +
+                    (suivant.classes?.filter(c => c.trim()).length ? `Classes : ${suivant.classes.join(', ')}\n` : '') +
                     `De : <t:${Math.floor(start.getTime() / 1000)}:t> à <t:${Math.floor(end.getTime() / 1000)}:t>\n` +
                     `Commence <t:${Math.floor(start.getTime() / 1000)}:R>`;
 
@@ -537,17 +543,17 @@ client.on('interactionCreate', async (interaction) => {
                     }],
                     flags: 64
                 });
-            } else if (visualiser === 'current') {
-                const current = week.find(event => new Date(event.start) <= currentDate && new Date(event.end) >= currentDate);
-                if (!current) return interaction.reply({ content: 'Aucun cours actuellement.', flags: 64 });
+            } else if (visualiser === 'actuel') {
+                const actuel = semaine.find(e => new Date(e.start) <= date && new Date(e.end) >= date);
+                if (!actuel) return interaction.reply({ content: 'Aucun cours actuellement.', flags: 64 });
 
-                const start = new Date(current.start);
-                const end = new Date(current.end);
+                const start = new Date(actuel.start);
+                const end = new Date(actuel.end);
 
-                const details = `**${current.subject}**\n` +
-                    (current.type ? (current.type === 'Skillogs' ? `Sur : ${current.type}\n` : `Salle : ${current.type}\n`) : '') +
-                    (current.teacher ? `Professeur : ${current.teacher}\n` : '') +
-                    (current.classes?.filter(c => c.trim()).length ? `Classes : ${current.classes.join(', ')}\n` : '') +
+                const details = `**${actuel.subject}**\n` +
+                    (actuel.type ? (actuel.type === 'Skillogs' ? `Sur : ${actuel.type}\n` : `Salle : ${actuel.type}\n`) : '') +
+                    (actuel.teacher ? `Professeur : ${actuel.teacher}\n` : '') +
+                    (actuel.classes?.filter(c => c.trim()).length ? `Classes : ${actuel.classes.join(', ')}\n` : '') +
                     `De : <t:${Math.floor(start.getTime() / 1000)}:t> à <t:${Math.floor(end.getTime() / 1000)}:t>\n` +
                     `Termine <t:${Math.floor(end.getTime() / 1000)}:R>`;
 
@@ -560,49 +566,47 @@ client.on('interactionCreate', async (interaction) => {
                     flags: 64
                 });
             } else {
-                const currentDate = new Date();
-                const eventsList = week.map(event => {
-                    const start = new Date(event.start);
-                    const end = new Date(event.end);
+                const date = new Date();
+                const eListe = semaine.map(e => {
+                    const start = new Date(e.start);
+                    const end = new Date(e.end);
 
-                    const isCurrent = start <= currentDate && end >= currentDate;
-                    const emoji = isCurrent ? ' 🟢' : '';
+                    const maintenant = start <= date && end >= date;
+                    const emoji = maintenant ? ' 🟢' : '';
 
-                    let details = `**${event.subject}${emoji}**\n`;
-                    if (event.type) event.type === 'Skillogs' ? details += `Sur : ${event.type}\n` : details += `Salle : ${event.type}\n`;
-                    if (event.teacher) details += `Professeur : ${event.teacher}\n`;
-                    if (event.classes?.filter(c => c.trim()).length) details += `Classes : ${event.classes.join(', ')}\n`;
+                    let details = `**${e.subject}${emoji}**\n`;
+                    if (e.type) e.type === 'Skillogs' ? details += `Sur : ${e.type}\n` : details += `Salle : ${e.type}\n`;
+                    if (e.teacher) details += `Professeur : ${e.teacher}\n`;
+                    if (e.classes?.filter(c => c.trim()).length) details += `Classes : ${e.classes.join(', ')}\n`;
 
                     return `${details}De : <t:${Math.floor(start.getTime() / 1000)}:t> à <t:${Math.floor(end.getTime() / 1000)}:t>\n`;
                 });
 
-                const maxLength = 1024;
+                const max = 1024;
                 const pages = [];
-                let currentPage = '';
+                let i = 0, page = '';
 
-                eventsList.forEach(event => {
-                    if ((currentPage + event).length > maxLength) {
-                        pages.push(currentPage);
-                        currentPage = '';
+                eListe.forEach(e => {
+                    if ((page + e).length > max) {
+                        pages.push(page);
+                        page = '';
                     }
-                    currentPage += event + '\n';
+                    page += e + '\n';
                 });
-                if (currentPage) pages.push(currentPage);
+                if (page) pages.push(page);
 
-                let pageIndex = 0;
-
-                const row = new ActionRowBuilder()
+                const boutons = new ActionRowBuilder()
                     .addComponents(
                         new ButtonBuilder()
-                            .setCustomId('previous')
+                            .setCustomId('precedent')
                             .setLabel('Précédent')
                             .setStyle(ButtonStyle.Primary)
-                            .setDisabled(pageIndex === 0),
+                            .setDisabled(i === 0),
                         new ButtonBuilder()
-                            .setCustomId('next')
+                            .setCustomId('suivant')
                             .setLabel('Suivant')
                             .setStyle(ButtonStyle.Primary)
-                            .setDisabled(pageIndex === pages.length - 1)
+                            .setDisabled(i === pages.length - 1)
                     );
 
                 await interaction.reply({
@@ -610,33 +614,33 @@ client.on('interactionCreate', async (interaction) => {
                         color: 0xa674cc,
                         title: `Planning de la spécialité ${speciality}`,
                         description: 'Voici le planning de cette semaine :',
-                        fields: [{ name: 'Événements', value: pages[pageIndex] }]
+                        fields: [{ name: 'Événements', value: pages[i] }]
                     }],
-                    components: [row],
+                    components: [boutons],
                     flags: 64
                 });
 
                 const message = await interaction.fetchReply();
 
-                const filter = i => i.customId === 'previous' || i.customId === 'next';
-                const collector = message.createMessageComponentCollector({ filter, time: 60000 });
+                const filtre = i => i.customId === 'precedent' || i.customId === 'suivant';
+                const action = message.createMessageComponentCollector({ filtre, time: 60000 });
 
-                collector.on('collect', async i => {
-                    if (i.customId === 'previous') pageIndex--;
-                    else if (i.customId === 'next') pageIndex++;
+                action.on('collect', async i => {
+                    if (i.customId === 'precedent') i--;
+                    else if (i.customId === 'suivant') i++;
 
-                    const newRow = new ActionRowBuilder()
+                    const nBoutons = new ActionRowBuilder()
                         .addComponents(
                             new ButtonBuilder()
-                                .setCustomId('previous')
+                                .setCustomId('precedent')
                                 .setLabel('Précédent')
                                 .setStyle(ButtonStyle.Primary)
-                                .setDisabled(pageIndex === 0),
+                                .setDisabled(i === 0),
                             new ButtonBuilder()
-                                .setCustomId('next')
+                                .setCustomId('suivant')
                                 .setLabel('Suivant')
                                 .setStyle(ButtonStyle.Primary)
-                                .setDisabled(pageIndex === pages.length - 1)
+                                .setDisabled(i === pages.length - 1)
                         );
 
                     try {
@@ -645,38 +649,38 @@ client.on('interactionCreate', async (interaction) => {
                                 color: 0xa674cc,
                                 title: `Planning de la spécialité ${speciality}`,
                                 description: 'Voici le planning de cette semaine :',
-                                fields: [{ name: 'Événements', value: pages[pageIndex] }]
+                                fields: [{ name: 'Événements', value: pages[i] }]
                             }],
-                            components: [newRow],
+                            components: [nBoutons],
                             flags: 64
                         });
-                    } catch (err) {
-                        console.error(err);
+                    } catch (erreur) {
+                        console.error(erreur);
                         await i.reply({ content: 'Une erreur est survenue lors de la mise à jour du message.', flags: 64 });
                     }
                 });
 
-                collector.on('end', async () => {
-                    const disabledRow = new ActionRowBuilder()
+                action.on('end', async () => {
+                    const dBoutons = new ActionRowBuilder()
                         .addComponents(
                             new ButtonBuilder()
-                                .setCustomId('previous')
+                                .setCustomId('precedent')
                                 .setLabel('Précédent')
                                 .setStyle(ButtonStyle.Primary)
                                 .setDisabled(true),
                             new ButtonBuilder()
-                                .setCustomId('next')
+                                .setCustomId('suivant')
                                 .setLabel('Suivant')
                                 .setStyle(ButtonStyle.Primary)
                                 .setDisabled(true)
                         );
 
-                    try { await message.edit({ components: [disabledRow] }); }
-                    catch (err) {}
+                    try { await message.edit({ components: [dBoutons] }); }
+                    catch (erreur) {}
                 });
             }
-        } catch (err) {
-            console.error(err);
+        } catch (erreur) {
+            console.error(erreur);
             await interaction.reply({ content: 'Une erreur est survenue lors de la récupération du planning.', flags: 64 });
         }
     }
