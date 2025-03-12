@@ -581,6 +581,7 @@ client.on('interactionCreate', async (interaction) => {
 
                     return `${details}De : <t:${Math.floor(start.getTime() / 1000)}:t> à <t:${Math.floor(end.getTime() / 1000)}:t>\n`;
                 });
+                if (!eListe.length) return interaction.reply({ content: 'Aucun événement à venir cette semaine.', flags: 64 });
 
                 const max = 1024;
                 const pages = [];
