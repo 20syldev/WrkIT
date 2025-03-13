@@ -657,7 +657,7 @@ client.on('interactionCreate', async (interaction) => {
                         });
                     } catch (erreur) {
                         console.error(erreur);
-                        await i.reply({ content: 'Une erreur est survenue lors de la mise à jour du message.', flags: 64 });
+                        await i.followUp({ content: 'Une erreur est survenue lors de la mise à jour du message.', flags: 64 });
                     }
                 });
 
@@ -682,7 +682,8 @@ client.on('interactionCreate', async (interaction) => {
             }
         } catch (erreur) {
             console.error(erreur);
-            await interaction.reply({ content: 'Une erreur est survenue lors de la récupération du planning.', flags: 64 });
+            if (interaction.replied || interaction.deferred) await interaction.followUp({ content: 'Une erreur est survenue lors de la récupération du planning.', flags: 64 });
+            else await interaction.reply({ content: 'Une erreur est survenue lors de la récupération du planning.', flags: 64 });
         }
     }
 });
