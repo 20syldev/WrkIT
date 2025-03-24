@@ -20,7 +20,7 @@ app.use(express.static(path.join(__dirname)));
 app.use((req, res) => res.status(500).sendFile(path.join(__dirname, 'erreur.html')));
 
 // Page principale
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));    
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 // ----- ----- ----- CONFIGURATION DISCORD ----- ----- ----- //
 
@@ -301,23 +301,23 @@ client.on('ready', (x) => {
             name: `${membres} élèves`,
             type: ActivityType.Watching
         },
-        { 
+        {
             name: 'les suggestions',
             type: ActivityType.Listening
         },
-        { 
+        {
             name: `${slam} élèves en SLAM`,
             type: ActivityType.Watching
         },
-        { 
+        {
             name: 'rien, ça travaille.',
             type: ActivityType.Playing
         },
-        { 
+        {
             name: `${sisr} élèves en SISR`,
             type: ActivityType.Watching
         },
-        { 
+        {
             name: 'le cours',
             type: ActivityType.Listening
         },
