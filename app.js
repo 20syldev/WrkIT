@@ -495,6 +495,8 @@ client.on('interactionCreate', async (interaction) => {
     const { commandName, options } = interaction;
 
     if (commandName === 'planning') {
+        await interaction.deferReply({ flags: 64 });
+
         const speciality = options.getString('spécialité');
         const visualiser = options.getString('visualiser');
         let url;
@@ -510,7 +512,7 @@ client.on('interactionCreate', async (interaction) => {
             });
             const donnees = await response.json();
 
-            if (!donnees?.length) return interaction.reply({ content: 'Aucune données disponibles.', flags: 64 });
+            if (!donnees?.length) return interaction.reply({ content: 'Aucune données disponibles.' });
 
             const date = new Date();
             const debut = new Date(date);
@@ -523,7 +525,7 @@ client.on('interactionCreate', async (interaction) => {
 
             if (visualiser === 'suivant') {
                 const suivant = semaine.find(e => new Date(e.start) > date);
-                if (!suivant) return interaction.reply({ content: 'Aucun événement à venir cette semaine.', flags: 64 });
+                if (!suivant) return interaction.editReply({ content: 'Aucun événement à venir cette semaine.' });
 
                 const start = new Date(suivant.start);
                 const end = new Date(suivant.end);
@@ -535,17 +537,16 @@ client.on('interactionCreate', async (interaction) => {
                     `De : <t:${Math.floor(start.getTime() / 1000)}:t> à <t:${Math.floor(end.getTime() / 1000)}:t>\n` +
                     `Commence <t:${Math.floor(start.getTime() / 1000)}:R>`;
 
-                await interaction.reply({
+                await interaction.editReply({
                     embeds: [{
                         color: 0xa674cc,
                         title: `Prochain cours de la spécialité ${speciality}`,
                         description: details
-                    }],
-                    flags: 64
+                    }]
                 });
             } else if (visualiser === 'actuel') {
                 const actuel = semaine.find(e => new Date(e.start) <= date && new Date(e.end) >= date);
-                if (!actuel) return interaction.reply({ content: 'Aucun cours actuellement.', flags: 64 });
+                if (!actuel) return interaction.editReply({ content: 'Aucun cours actuellement.' });
 
                 const start = new Date(actuel.start);
                 const end = new Date(actuel.end);
@@ -557,13 +558,12 @@ client.on('interactionCreate', async (interaction) => {
                     `De : <t:${Math.floor(start.getTime() / 1000)}:t> à <t:${Math.floor(end.getTime() / 1000)}:t>\n` +
                     `Termine <t:${Math.floor(end.getTime() / 1000)}:R>`;
 
-                await interaction.reply({
+                await interaction.editReply({
                     embeds: [{
                         color: 0xa674cc,
                         title: `Cours actuel de la spécialité ${speciality}`,
                         description: details
-                    }],
-                    flags: 64
+                    }]
                 });
             } else {
                 const date = new Date();
@@ -581,7 +581,7 @@ client.on('interactionCreate', async (interaction) => {
 
                     return `${details}De : <t:${Math.floor(start.getTime() / 1000)}:t> à <t:${Math.floor(end.getTime() / 1000)}:t>\n`;
                 });
-                if (!eListe.length) return interaction.reply({ content: 'Aucun événement à venir cette semaine.', flags: 64 });
+                if (!eListe.length) return interaction.reply({ content: 'Aucun événement à venir cette semaine.' });
 
                 const max = 1024;
                 const pages = [];
@@ -610,15 +610,14 @@ client.on('interactionCreate', async (interaction) => {
                             .setDisabled(i === pages.length - 1)
                     );
 
-                await interaction.reply({
+                await interaction.editReply({
                     embeds: [{
                         color: 0xa674cc,
                         title: `Planning de la spécialité ${speciality}`,
                         description: 'Voici le planning de cette semaine :',
                         fields: [{ name: 'Événements', value: pages[i] }]
                     }],
-                    components: [boutons],
-                    flags: 64
+                    components: [boutons]
                 });
 
                 const message = await interaction.fetchReply();
@@ -652,8 +651,7 @@ client.on('interactionCreate', async (interaction) => {
                                 description: 'Voici le planning de cette semaine :',
                                 fields: [{ name: 'Événements', value: pages[i] }]
                             }],
-                            components: [nBoutons],
-                            flags: 64
+                            components: [nBoutons]
                         });
                     } catch (erreur) {
                         console.error(erreur);
@@ -682,7 +680,7 @@ client.on('interactionCreate', async (interaction) => {
             }
         } catch (erreur) {
             console.error(erreur);
-            await interaction.reply({ content: 'Une erreur est survenue lors de la récupération du planning.', flags: 64 });
+            await interaction.editReply({ content: 'Une erreur est survenue lors de la récupération du planning.' });
         }
     }
 });
