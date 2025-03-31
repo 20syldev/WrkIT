@@ -626,9 +626,9 @@ client.on('interactionCreate', async (interaction) => {
                 const filtre = i => i.customId === 'precedent' || i.customId === 'suivant';
                 const action = message.createMessageComponentCollector({ filtre, time: 60000 });
 
-                action.on('collect', async i => {
-                    if (i.customId === 'precedent') i--;
-                    else if (i.customId === 'suivant') i++;
+                action.on('collect', async (interaction) => {
+                    if (interaction.customId === 'precedent') i--;
+                    else if (interaction.customId === 'suivant') i++;
 
                     const nBoutons = new ActionRowBuilder()
                         .addComponents(
@@ -645,7 +645,7 @@ client.on('interactionCreate', async (interaction) => {
                         );
 
                     try {
-                        await i.update({
+                        await interaction.update({
                             embeds: [{
                                 color: 0xa674cc,
                                 title: `Planning de la spécialité ${speciality}`,
@@ -657,7 +657,7 @@ client.on('interactionCreate', async (interaction) => {
                         });
                     } catch (erreur) {
                         console.error(erreur);
-                        await i.reply({ content: 'Une erreur est survenue lors de la mise à jour du message.', flags: 64 });
+                        await interaction.editReply({ content: 'Une erreur est survenue lors de la mise à jour du message.', flags: 64 });
                     }
                 });
 
