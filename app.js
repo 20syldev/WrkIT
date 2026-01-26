@@ -356,7 +356,10 @@ client.on('interactionCreate', async (interaction) => {
         const horodatage = options.getBoolean('horodatage');
 
         if (!titre && !description && !auteur && !pied && !miniature && !image) {
-            return await interaction.reply({ content: 'Vous devez au moins fournir un titre, une description, un auteur, un pied de page, une miniature ou une image.', flags: 64 });
+            return await interaction.reply({
+                content: 'Vous devez au moins fournir un titre, une description, un auteur, un pied de page, une miniature ou une image.',
+                flags: 64
+            });
         }
 
         const embed = {
@@ -371,7 +374,10 @@ client.on('interactionCreate', async (interaction) => {
         };
 
         await interaction.channel.send({ embeds: [embed] });
-        await interaction.reply({ content: 'Embed envoyé !', flags: 64 });
+        await interaction.reply({
+            content: 'Embed envoyé !',
+            flags: 64
+        });
     }
 });
 
@@ -397,7 +403,10 @@ client.on('interactionCreate', async (interaction) => {
         const debut = new Date(annee, mois - 1, jour, heure, minute);
         const fin = new Date(debut.getTime() + (duree || 120) * 60 * 1000);
 
-        if (debut < new Date()) return await interaction.reply({ content: 'La date de début de l\'événement ne peut pas être dans le passé.', flags: 64 });
+        if (debut < new Date()) return await interaction.reply({
+            content: 'La date de début de l\'événement ne peut pas être dans le passé.',
+            flags: 64
+        });
 
         const donnees = {
             name: nom,
@@ -413,10 +422,16 @@ client.on('interactionCreate', async (interaction) => {
 
         try {
             await interaction.guild.scheduledEvents.create(donnees);
-            await interaction.reply({ content: `Événement ajouté : **${nom}** à **${lieu}** le **${debut.toLocaleDateString('fr-FR')}** à **${debut.toLocaleTimeString('fr-FR')}**.`, flags: 64 });
+            await interaction.reply({
+                content: `Événement ajouté : **${nom}** à **${lieu}** le **${debut.toLocaleDateString('fr-FR')}** à **${debut.toLocaleTimeString('fr-FR')}**.`,
+                flags: 64
+            });
         } catch (erreur) {
             console.error(erreur);
-            await interaction.reply({ content: 'Une erreur est survenue lors de l\'ajout de l\'événement.', flags: 64 });
+            await interaction.reply({
+                content: 'Une erreur est survenue lors de l\'ajout de l\'événement.',
+                flags: 64
+            });
         }
     }
 });
@@ -440,7 +455,10 @@ client.on('interactionCreate', async (interaction) => {
         const description = options.getString('description');
 
         const e = await interaction.guild.scheduledEvents.fetch(id);
-        if (!e) return await interaction.reply({ content: 'Événement non trouvé.', flags: 64 });
+        if (!e) return await interaction.reply({
+            content: 'Événement non trouvé.',
+            flags: 64
+        });
 
         const debut = new Date(annee, mois - 1, jour, heure, minute);
         const fin = new Date(debut.getTime() + (duree || 120) * 60 * 1000);
@@ -457,10 +475,16 @@ client.on('interactionCreate', async (interaction) => {
 
         try {
             await e.edit(donnees);
-            await interaction.reply({ content: `Événement **${id}** modifié.`, flags: 64 });
+            await interaction.reply({
+                content: `Événement **${id}** modifié.`,
+                flags: 64
+            });
         } catch (erreur) {
             console.error(erreur);
-            await interaction.reply({ content: 'Une erreur est survenue lors de la modification de l\'événement.', flags: 64 });
+            await interaction.reply({
+                content: 'Une erreur est survenue lors de la modification de l\'événement.',
+                flags: 64
+            });
         }
     }
 });
@@ -474,14 +498,23 @@ client.on('interactionCreate', async (interaction) => {
     if (commandName === 'event-delete') {
         const id = options.getString('id');
         const e = await interaction.guild.scheduledEvents.fetch(id);
-        if (!e) return await interaction.reply({ content: 'Événement non trouvé.', flags: 64 });
+        if (!e) return await interaction.reply({
+            content: 'Événement non trouvé.',
+            flags: 64
+        });
 
         try {
             await e.delete();
-            await interaction.reply({ content: `Événement **${id}** supprimé.`, flags: 64 });
+            await interaction.reply({
+                content: `Événement **${id}** supprimé.`,
+                flags: 64
+            });
         } catch (erreur) {
             console.error(erreur);
-            await interaction.reply({ content: 'Une erreur est survenue lors de la suppression de l\'événement.', flags: 64 });
+            await interaction.reply({
+                content: 'Une erreur est survenue lors de la suppression de l\'événement.',
+                flags: 64
+            });
         }
     }
 });
@@ -655,7 +688,10 @@ client.on('interactionCreate', async (interaction) => {
                         });
                     } catch (erreur) {
                         console.error(erreur);
-                        await interaction.editReply({ content: 'Une erreur est survenue lors de la mise à jour du message.', flags: 64 });
+                        await interaction.editReply({
+                            content: 'Une erreur est survenue lors de la mise à jour du message.',
+                            flags: 64
+                        });
                     }
                 });
 
