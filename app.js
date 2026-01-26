@@ -273,6 +273,25 @@ const commands = [
                 ]
             }
         ],
+    },
+    {
+        name: 'clear',
+        description: 'Supprimer des messages dans le salon',
+        default_member_permissions: '8192',
+        options: [
+            {
+                type: 4,
+                name: 'nombre',
+                description: 'Nombre de messages à supprimer (1-100)',
+                required: false
+            },
+            {
+                type: 3,
+                name: 'message',
+                description: 'Supprimer jusqu\'à ce message (ID)',
+                required: false
+            }
+        ]
     }
 ];
 
@@ -513,6 +532,56 @@ client.on('interactionCreate', async (interaction) => {
             console.error(erreur);
             await interaction.reply({
                 content: 'Une erreur est survenue lors de la suppression de l\'événement.',
+                flags: 64
+            });
+        }
+    }
+});
+
+// Supprimer des messages
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isCommand()) return;
+
+    const { commandName, options } = interaction;
+
+    if (commandName === 'clear') {
+        const nombre = options.getInteger('nombre');
+        const message = options.getString('message');
+
+        if (!nombre && !message) return await interaction.reply({
+            content: 'Vous devez spécifier un nombre de messages ou un ID de message.',
+            flags: 64
+        });
+
+        try {
+            if (message) {
+                const messages = await interaction.channel.messages.fetch({ after: message, limit: 99 });
+                const cible = await interaction.channel.messages.fetch(message).catch(() => null);
+                if (cible) messages.set(cible.id, cible);
+                if (messages.size === 0) return await interaction.reply({
+                    content: 'Aucun message trouvé.',
+                    flags: 64
+                });
+                const supprime = await interaction.channel.bulkDelete(messages, true);
+                await interaction.reply({
+                    content: `${supprime.size} message${supprime.size > 1 ? 's' : ''} supprimé${supprime.size > 1 ? 's' : ''}.`,
+                    flags: 64
+                });
+            } else {
+                if (nombre < 1 || nombre > 100) return await interaction.reply({
+                    content: 'Le nombre de messages doit être compris entre 1 et 100.',
+                    flags: 64
+                });
+                const supprime = await interaction.channel.bulkDelete(nombre, true);
+                await interaction.reply({
+                    content: `${supprime.size} message${supprime.size > 1 ? 's' : ''} supprimé${supprime.size > 1 ? 's' : ''}.`,
+                    flags: 64
+                });
+            }
+        } catch (erreur) {
+            console.error(erreur);
+            await interaction.reply({
+                content: 'Une erreur est survenue lors de la suppression des messages.',
                 flags: 64
             });
         }
