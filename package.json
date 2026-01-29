@@ -4,6 +4,10 @@
     "description": "Bot Discord utilitaire pour le serveur du BTS SIO",
     "main": "app.js",
     "type": "module",
+    "publishConfig": {
+        "access": "public",
+        "provenance": true
+    },
     "scripts": {
         "start": "node app.js",
         "dev": "nodemon app.js",
@@ -13,9 +17,12 @@
         "upgrade:build": "npm upgrade && npm install && node app.js"
     },
     "dependencies": {
-        "discord.js": "latest",
-        "dotenv": "latest",
-        "express": "latest"
+        "discord.js": "^14.25.1",
+        "dotenv": "^17.2.3",
+        "express": "^5.2.1"
+    },
+    "overrides": {
+        "undici": "^6.23.0"
     },
     "repository": {
         "type": "git",
