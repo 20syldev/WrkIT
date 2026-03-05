@@ -607,7 +607,7 @@ client.on('interactionCreate', async (interaction) => {
         else if (speciality === 'SISR') url = encodeURIComponent(process.env.PLANNING_SISR);
 
         try {
-            const response = await fetch('https://api.sylvain.pro/v3/hyperplanning', {
+            const response = await fetch('https://api.sylvain.sh/v3/hyperplanning', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `url=${url}&detail=full`
