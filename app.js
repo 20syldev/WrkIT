@@ -20,7 +20,7 @@ app.use(express.static(path.join(__dirname)));
 app.use((req, res) => res.status(500).sendFile(path.join(__dirname, 'erreur.html')));
 
 // Page principale
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/{*path}', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 // ----- ----- ----- CONFIGURATION DISCORD ----- ----- ----- //
 
