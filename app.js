@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import path from 'path';
 import pkg from 'discord.js';
+import { createLogger } from '@20syldev/logger.ts';
 
 // ----- ----- ----- CONFIGURATION EXPRESS ----- ----- ----- //
 
@@ -12,6 +13,21 @@ dotenv.config();
 const app = express();
 const __dirname = path.resolve();
 const port = process.env.PORT || 4000;
+
+// Logger
+const logger = createLogger({ theme: 'colored' });
+const discordLog = logger.group('discord');
+const expressLog = logger.group('express');
+const commandLog = logger.group('commands');
+
+// Logger les requêtes HTTP
+app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+        expressLog.log({ method: req.method, url: req.originalUrl, status: res.statusCode, duration: `${Date.now() - start}ms` });
+    });
+    next();
+});
 
 // Servir les fichiers statiques
 app.use(express.static(path.join(__dirname)));
@@ -298,19 +314,19 @@ const commands = [
 // Enregistrement des commandes slash
 (async () => {
     try {
-        console.log('Début de la mise à jour des commandes (/) de l\'application.');
+        discordLog.log({ method: 'PUT', url: '/commands', status: 102 });
         await rest.put(Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID), { body: commands });
-        console.log('Les commandes (/) de l\'application ont été mises à jour avec succès.');
+        discordLog.log({ method: 'PUT', url: '/commands', status: 200 });
     } catch (erreur) {
-        console.error(erreur);
+        discordLog.log({ method: 'PUT', url: '/commands', status: 500 });
     }
 })();
 
 // ----- ----- ----- APPLICATION ----- ----- ----- //
 
 // Statut du bot & calcul des membres
-client.on('ready', (x) => {
-    console.log(`✅ ${x.user.username} connecté à Discord !`);
+client.on('clientReady', () => {
+    discordLog.log({ method: 'GET', url: '/ready', status: 200 });
     const serveur = client.guilds.cache.get(process.env.GUILD_ID);
     const membres = serveur.memberCount;
     const slam = serveur.members.cache.filter(member => member.roles.cache.has(process.env.ROLE_SLAM)).size;
@@ -393,6 +409,7 @@ client.on('interactionCreate', async (interaction) => {
         };
 
         await interaction.channel.send({ embeds: [embed] });
+        commandLog.log({ method: 'RUN', url: '/embed', status: 200 });
         await interaction.reply({
             content: 'Embed envoyé !',
             flags: 64
@@ -441,12 +458,13 @@ client.on('interactionCreate', async (interaction) => {
 
         try {
             await interaction.guild.scheduledEvents.create(donnees);
+            commandLog.log({ method: 'RUN', url: '/event-add', status: 200 });
             await interaction.reply({
                 content: `Événement ajouté : **${nom}** à **${lieu}** le **${debut.toLocaleDateString('fr-FR')}** à **${debut.toLocaleTimeString('fr-FR')}**.`,
                 flags: 64
             });
         } catch (erreur) {
-            console.error(erreur);
+            commandLog.log({ method: 'RUN', url: '/event-add', status: 500 });
             await interaction.reply({
                 content: 'Une erreur est survenue lors de l\'ajout de l\'événement.',
                 flags: 64
@@ -494,12 +512,13 @@ client.on('interactionCreate', async (interaction) => {
 
         try {
             await e.edit(donnees);
+            commandLog.log({ method: 'RUN', url: '/event-edit', status: 200 });
             await interaction.reply({
                 content: `Événement **${id}** modifié.`,
                 flags: 64
             });
         } catch (erreur) {
-            console.error(erreur);
+            commandLog.log({ method: 'RUN', url: '/event-edit', status: 500 });
             await interaction.reply({
                 content: 'Une erreur est survenue lors de la modification de l\'événement.',
                 flags: 64
@@ -524,12 +543,13 @@ client.on('interactionCreate', async (interaction) => {
 
         try {
             await e.delete();
+            commandLog.log({ method: 'RUN', url: '/event-delete', status: 200 });
             await interaction.reply({
                 content: `Événement **${id}** supprimé.`,
                 flags: 64
             });
         } catch (erreur) {
-            console.error(erreur);
+            commandLog.log({ method: 'RUN', url: '/event-delete', status: 500 });
             await interaction.reply({
                 content: 'Une erreur est survenue lors de la suppression de l\'événement.',
                 flags: 64
@@ -563,6 +583,7 @@ client.on('interactionCreate', async (interaction) => {
                     flags: 64
                 });
                 const supprime = await interaction.channel.bulkDelete(messages, true);
+                commandLog.log({ method: 'RUN', url: '/clear', status: 200 });
                 await interaction.reply({
                     content: `${supprime.size} message${supprime.size > 1 ? 's' : ''} supprimé${supprime.size > 1 ? 's' : ''}.`,
                     flags: 64
@@ -573,13 +594,14 @@ client.on('interactionCreate', async (interaction) => {
                     flags: 64
                 });
                 const supprime = await interaction.channel.bulkDelete(nombre, true);
+                commandLog.log({ method: 'RUN', url: '/clear', status: 200 });
                 await interaction.reply({
                     content: `${supprime.size} message${supprime.size > 1 ? 's' : ''} supprimé${supprime.size > 1 ? 's' : ''}.`,
                     flags: 64
                 });
             }
         } catch (erreur) {
-            console.error(erreur);
+            commandLog.log({ method: 'RUN', url: '/clear', status: 500 });
             await interaction.reply({
                 content: 'Une erreur est survenue lors de la suppression des messages.',
                 flags: 64
@@ -607,11 +629,13 @@ client.on('interactionCreate', async (interaction) => {
         else if (speciality === 'SISR') url = encodeURIComponent(process.env.PLANNING_SISR);
 
         try {
+            const start = Date.now();
             const response = await fetch('https://api.sylvain.sh/v3/hyperplanning', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `url=${url}&detail=full`
             });
+            expressLog.log({ method: 'POST', url: '/v3/hyperplanning', status: response.status, duration: `${Date.now() - start}ms` });
             const donnees = await response.json();
 
             if (!donnees?.length) return interaction.reply({ content: 'Aucune données disponibles.' });
@@ -639,6 +663,7 @@ client.on('interactionCreate', async (interaction) => {
                     `De : <t:${Math.floor(start.getTime() / 1000)}:t> à <t:${Math.floor(end.getTime() / 1000)}:t>\n` +
                     `Commence <t:${Math.floor(start.getTime() / 1000)}:R>`;
 
+                commandLog.log({ method: 'RUN', url: '/planning', status: 200 });
                 await interaction.editReply({
                     embeds: [{
                         color: 0xa674cc,
@@ -660,6 +685,7 @@ client.on('interactionCreate', async (interaction) => {
                     `De : <t:${Math.floor(start.getTime() / 1000)}:t> à <t:${Math.floor(end.getTime() / 1000)}:t>\n` +
                     `Termine <t:${Math.floor(end.getTime() / 1000)}:R>`;
 
+                commandLog.log({ method: 'RUN', url: '/planning', status: 200 });
                 await interaction.editReply({
                     embeds: [{
                         color: 0xa674cc,
@@ -712,6 +738,7 @@ client.on('interactionCreate', async (interaction) => {
                             .setDisabled(i === pages.length - 1)
                     );
 
+                commandLog.log({ method: 'RUN', url: '/planning', status: 200 });
                 await interaction.editReply({
                     embeds: [{
                         color: 0xa674cc,
@@ -728,6 +755,7 @@ client.on('interactionCreate', async (interaction) => {
                 const action = message.createMessageComponentCollector({ filtre, time: 60000 });
 
                 action.on('collect', async (interaction) => {
+                    commandLog.log({ method: 'RUN', url: `/planning - ${interaction.customId}`, status: 200 });
                     if (interaction.customId === 'precedent') i--;
                     else if (interaction.customId === 'suivant') i++;
 
@@ -756,7 +784,7 @@ client.on('interactionCreate', async (interaction) => {
                             components: [nBoutons]
                         });
                     } catch (erreur) {
-                        console.error(erreur);
+                        commandLog.log({ method: 'RUN', url: '/planning', status: 500 });
                         await interaction.editReply({
                             content: 'Une erreur est survenue lors de la mise à jour du message.',
                             flags: 64
@@ -784,7 +812,7 @@ client.on('interactionCreate', async (interaction) => {
                 });
             }
         } catch (erreur) {
-            console.error(erreur);
+            commandLog.log({ method: 'RUN', url: '/planning', status: 500 });
             await interaction.editReply({ content: 'Une erreur est survenue lors de la récupération du planning.' });
         }
     }
@@ -794,4 +822,4 @@ client.on('interactionCreate', async (interaction) => {
 
 // Connexion du bot
 client.login(process.env.TOKEN);
-app.listen(port, () => console.log(`✅ Bot en ligne sur le port ${port}`));
+app.listen(port, () => expressLog.log({ method: 'GET', url: '/', status: 200 }));
