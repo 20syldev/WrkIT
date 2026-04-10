@@ -1,5 +1,5 @@
 {
-    "version": "2.1.9",
+    "version": "2.2.0",
     "name": "wrkit",
     "description": "Bot Discord utilitaire pour le serveur du BTS SIO",
     "main": "dist/index.js",
