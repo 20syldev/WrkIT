@@ -2,15 +2,18 @@
     "version": "2.1.9",
     "name": "wrkit",
     "description": "Bot Discord utilitaire pour le serveur du BTS SIO",
-    "main": "app.js",
+    "main": "dist/index.js",
     "type": "module",
     "scripts": {
-        "start": "node app.js",
-        "dev": "nodemon app.js",
-        "build": "npm install && node app.js",
+        "start": "node dist/index.js",
+        "dev": "tsx --watch src/index.ts",
+        "build": "tsc",
+        "build:start": "npm run build && npm start",
+        "lint": "eslint src/",
+        "format": "prettier --write src/",
         "upgrade:minor": "npm upgrade",
         "upgrade:major": "npx npm-check-updates -u && npm install",
-        "upgrade:build": "npm upgrade && npm install && node app.js"
+        "upgrade:build": "npm upgrade && npm run build:start"
     },
     "dependencies": {
         "@20syldev/logger.ts": "^1.0.0",
@@ -35,5 +38,15 @@
     ],
     "author": "Sylvain L.",
     "license": "BSD 3-Clause",
-    "homepage": "https://wrkit.sylvain.sh"
+    "homepage": "https://wrkit.sylvain.sh",
+    "devDependencies": {
+        "@eslint/js": "^10.0.1",
+        "@types/express": "^5.0.6",
+        "@types/node": "^25.6.0",
+        "eslint": "^10.2.0",
+        "prettier": "^3.8.2",
+        "tsx": "^4.21.0",
+        "typescript": "^6.0.2",
+        "typescript-eslint": "^8.58.1"
+    }
 }
