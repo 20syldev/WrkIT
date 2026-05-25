@@ -22,7 +22,9 @@
         "express": "^5.2.1"
     },
     "overrides": {
-        "undici": "^6.24.0"
+        "brace-expansion": "^5.0.6",
+        "undici": "^6.24.0",
+        "ws": "^8.21.0"
     },
     "publishConfig": {
         "access": "public"
