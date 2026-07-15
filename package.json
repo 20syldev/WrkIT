@@ -23,7 +23,8 @@
     },
     "overrides": {
         "brace-expansion": "^5.0.6",
-        "undici": "^6.24.0",
+        "esbuild": "^0.28.1",
+        "undici": "^6.27.0",
         "ws": "^8.21.0"
     },
     "publishConfig": {
